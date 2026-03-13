@@ -1,4 +1,7 @@
+using Aida.ParallelChange.Api.Contracts.JsonApi;
+using Aida.ParallelChange.Api.Contracts.V1;
 using Aida.ParallelChange.Api.Infrastructure.InMemory;
+using Aida.ParallelChange.Api.JsonApi;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Aida.ParallelChange.Api.Controllers.V1;
@@ -15,8 +18,8 @@ public sealed class CustomerContactsV1Controller : ControllerBase
     }
 
     [HttpGet("{customerId:int}")]
-    [Produces("application/vnd.api+json")]
-    public IActionResult Get(int customerId)
+    [Produces(JsonApiMediaTypes.JsonApi)]
+    public ActionResult<CustomerContactV1Document> Get(int customerId)
     {
         var record = _store.FindById(customerId);
 
@@ -25,24 +28,23 @@ public sealed class CustomerContactsV1Controller : ControllerBase
             return NotFound();
         }
 
-        var document = new
+        var document = new CustomerContactV1Document
         {
-            data = new
+            Data = new JsonApiResource<CustomerContactV1Attributes>
             {
-                type = "customer-contacts",
-                id = record.CustomerId.ToString(),
-                attributes = new
+                Type = "customer-contacts",
+                Id = record.CustomerId.ToString(),
+                Attributes = new CustomerContactV1Attributes
                 {
-                    contactName = record.ContactName,
-                    phone = record.Phone,
-                    email = record.Email
+                    ContactName = record.ContactName,
+                    Phone = record.Phone,
+                    Email = record.Email
                 }
             }
         };
 
-        return new JsonResult(document)
-        {
-            ContentType = "application/vnd.api+json"
-        };
+        Response.ContentType = JsonApiMediaTypes.JsonApi;
+
+        return Ok(document);
     }
 }
