@@ -1,5 +1,6 @@
 using Aida.ParallelChange.Api.Infrastructure.Persistence.Migrations;
 using FluentMigrator.Runner;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 

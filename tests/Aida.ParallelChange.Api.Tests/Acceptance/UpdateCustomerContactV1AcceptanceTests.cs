@@ -32,8 +32,8 @@ public sealed class UpdateCustomerContactV1AcceptanceTests
 
         putResponse.StatusCode.ShouldBe(HttpStatusCode.NoContent);
         getResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
-        getBody.ShouldContain(""contactName":"Ada Lovelace"");
-        getBody.ShouldContain(""phone":"+44 123456789"");
-        getBody.ShouldContain(""email":"ada.lovelace@example.com"");
+        getBody.ShouldContain("\"contactName\":\"Ada Lovelace\"");
+        getBody.ShouldContain("\"phone\":\"+44 123456789\"");
+        getBody.ShouldContain("\"email\":\"ada.lovelace@example.com\"");
     }
 }
