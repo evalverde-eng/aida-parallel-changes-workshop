@@ -1,0 +1,33 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aida.ParallelChange.Api", "src\Aida.ParallelChange.Api\Aida.ParallelChange.Api.csproj", "{3C76D9D4-47A6-475D-9D8D-0D53295A8FD7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aida.ParallelChange.Migrator", "src\Aida.ParallelChange.Migrator\Aida.ParallelChange.Migrator.csproj", "{0E26BB83-C2F0-4B3B-88CA-0B114B0F98D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aida.ParallelChange.Api.Tests", "tests\Aida.ParallelChange.Api.Tests\Aida.ParallelChange.Api.Tests.csproj", "{D7B934AF-89EE-4E3D-9AA0-434A4E8953AC}"
+EndProject
+Global
+    GlobalSection(SolutionConfigurationPlatforms) = preSolution
+        Debug|Any CPU = Debug|Any CPU
+        Release|Any CPU = Release|Any CPU
+    EndGlobalSection
+    GlobalSection(ProjectConfigurationPlatforms) = postSolution
+        {3C76D9D4-47A6-475D-9D8D-0D53295A8FD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {3C76D9D4-47A6-475D-9D8D-0D53295A8FD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {3C76D9D4-47A6-475D-9D8D-0D53295A8FD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {3C76D9D4-47A6-475D-9D8D-0D53295A8FD7}.Release|Any CPU.Build.0 = Release|Any CPU
+        {0E26BB83-C2F0-4B3B-88CA-0B114B0F98D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {0E26BB83-C2F0-4B3B-88CA-0B114B0F98D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {0E26BB83-C2F0-4B3B-88CA-0B114B0F98D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {0E26BB83-C2F0-4B3B-88CA-0B114B0F98D1}.Release|Any CPU.Build.0 = Release|Any CPU
+        {D7B934AF-89EE-4E3D-9AA0-434A4E8953AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {D7B934AF-89EE-4E3D-9AA0-434A4E8953AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {D7B934AF-89EE-4E3D-9AA0-434A4E8953AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {D7B934AF-89EE-4E3D-9AA0-434A4E8953AC}.Release|Any CPU.Build.0 = Release|Any CPU
+    EndGlobalSection
+    GlobalSection(SolutionProperties) = preSolution
+        HideSolutionNode = FALSE
+    EndGlobalSection
+EndGlobal
