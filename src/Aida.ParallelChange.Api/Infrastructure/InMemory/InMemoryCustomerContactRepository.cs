@@ -22,4 +22,10 @@ public sealed class InMemoryCustomerContactRepository : CustomerContactReader
         _records.TryGetValue(customerId.Value, out var contact);
         return Task.FromResult(contact);
     }
+
+    public Task SaveAsync(CustomerContact customerContact, CancellationToken cancellationToken = default)
+    {
+        _records[customerContact.CustomerId.Value] = customerContact;
+        return Task.CompletedTask;
+    }
 }

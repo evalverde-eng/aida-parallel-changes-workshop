@@ -2,6 +2,7 @@ using Aida.ParallelChange.Api.Application.GetCustomerContact;
 using Aida.ParallelChange.Api.Contracts.JsonApi;
 using Aida.ParallelChange.Api.Contracts.V1;
 using Aida.ParallelChange.Api.Domain;
+using Aida.ParallelChange.Api.Infrastructure.InMemory;
 using Aida.ParallelChange.Api.JsonApi;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,10 +13,12 @@ namespace Aida.ParallelChange.Api.Controllers.V1;
 public sealed class CustomerContactsV1Controller : ControllerBase
 {
     private readonly GetCustomerContactHandler _handler;
+    private readonly InMemoryCustomerContactRepository _repository;
 
-    public CustomerContactsV1Controller(GetCustomerContactHandler handler)
+    public CustomerContactsV1Controller(GetCustomerContactHandler handler, InMemoryCustomerContactRepository repository)
     {
         _handler = handler;
+        _repository = repository;
     }
 
     [HttpGet("{customerId:int}")]
@@ -47,5 +50,20 @@ public sealed class CustomerContactsV1Controller : ControllerBase
         Response.ContentType = JsonApiMediaTypes.JsonApi;
 
         return Ok(document);
+    }
+
+    [HttpPut("{customerId:int}")]
+    [Consumes(JsonApiMediaTypes.JsonApi)]
+    public async Task<IActionResult> Put(int customerId, [FromBody] UpdateCustomerContactV1Request request, CancellationToken cancellationToken)
+    {
+        var customerContact = new CustomerContact(
+            new CustomerId(customerId),
+            request.ContactName,
+            request.Phone,
+            new EmailAddress(request.Email));
+
+        await _repository.SaveAsync(customerContact, cancellationToken);
+
+        return NoContent();
     }
 }
