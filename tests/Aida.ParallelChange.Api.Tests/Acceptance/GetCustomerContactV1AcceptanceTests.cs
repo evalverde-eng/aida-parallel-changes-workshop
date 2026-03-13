@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 using Shouldly;
 
 namespace Aida.ParallelChange.Api.Tests.Acceptance;
@@ -14,12 +15,14 @@ public sealed class GetCustomerContactV1AcceptanceTests
 
         var response = await client.GetAsync("/api/v1/customer-contacts/42");
         var body = await response.Content.ReadAsStringAsync();
+        using var document = JsonDocument.Parse(body);
+        var attributes = document.RootElement.GetProperty("data").GetProperty("attributes");
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
         response.Content.Headers.ContentType?.MediaType.ShouldBe("application/vnd.api+json");
-        body.ShouldContain("\"contactName\":\"María García\"");
-        body.ShouldContain("\"phone\":\"+34 600123123\"");
-        body.ShouldContain("\"email\":\"maria.garcia@example.com\"");
+        attributes.GetProperty("contactName").GetString().ShouldBe("María García");
+        attributes.GetProperty("phone").GetString().ShouldBe("+34 600123123");
+        attributes.GetProperty("email").GetString().ShouldBe("maria.garcia@example.com");
     }
 
     [Test]
