@@ -7,7 +7,7 @@
     ],
     "configuration": "Release",
     "mutation-level": "Complete",
-    "concurrency": 1,
+    "concurrency": 2,
     "test-case-filter": "TestCategory!=NarrowIntegration",
     "additional-timeout": 180000,
     "disable-mix-mutants": true,
@@ -19,8 +19,7 @@
     "reporters": [
       "Progress",
       "ClearText",
-      "Json",
-      "Html"
+      "Json"
     ],
     "mutate": [
       "Application/**/*.cs",
