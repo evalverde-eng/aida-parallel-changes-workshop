@@ -1,3 +1,4 @@
+[![quality-gates](https://github.com/evalverde-eng/aida-parallel-changes-workshop/actions/workflows/quality-gates.yml/badge.svg)](https://github.com/evalverde-eng/aida-parallel-changes-workshop/actions/workflows/quality-gates.yml)
 # AIDA Parallel Change Workshop
 
 This repository provides the workshop baseline for evolving an API safely with strict engineering discipline.
