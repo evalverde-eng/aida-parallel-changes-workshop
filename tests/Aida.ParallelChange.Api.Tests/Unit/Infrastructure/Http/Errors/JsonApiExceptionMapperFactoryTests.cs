@@ -8,78 +8,12 @@ namespace Aida.ParallelChange.Api.Tests.Unit.Infrastructure.Http.Errors;
 [TestFixture]
 public sealed class JsonApiExceptionMapperFactoryTests
 {
-    [Test]
-    public void Create_returns_bad_request_response_for_validation_exception()
+    private JsonApiExceptionMapperFactory _factory = default!;
+
+    [SetUp]
+    public void SetUp()
     {
-        var factory = CreateFactory();
-        var exception = new ApiRequestValidationException("Invalid customer id", "Customer id must be a number greater than zero.");
-
-        var response = factory.Create(exception);
-
-        response.StatusCode.ShouldBe(400);
-        response.Title.ShouldBe("Invalid customer id");
-        response.Detail.ShouldBe("Customer id must be a number greater than zero.");
-    }
-
-    [Test]
-    public void Create_returns_conflict_response_for_already_exists_exception()
-    {
-        var factory = CreateFactory();
-        var exception = new CustomerContactAlreadyExistsException(42);
-
-        exception.CustomerId.ShouldBe(42);
-
-        var response = factory.Create(exception);
-
-        response.StatusCode.ShouldBe(409);
-        response.Title.ShouldBe("Customer contact already exists");
-        response.Detail.ShouldBe("Customer contact '42' already exists.");
-    }
-
-    [Test]
-    public void Create_returns_not_found_response_for_not_found_exception()
-    {
-        var factory = CreateFactory();
-        var exception = new CustomerContactNotFoundException(99);
-
-        exception.CustomerId.ShouldBe(99);
-
-        var response = factory.Create(exception);
-
-        response.StatusCode.ShouldBe(404);
-        response.Title.ShouldBe("Customer contact not found");
-        response.Detail.ShouldBe("Customer contact '99' was not found.");
-    }
-
-    [Test]
-    public void Create_returns_bad_request_response_for_bad_http_request_exception()
-    {
-        var factory = CreateFactory();
-        var exception = new BadHttpRequestException("Malformed");
-
-        var response = factory.Create(exception);
-
-        response.StatusCode.ShouldBe(400);
-        response.Title.ShouldBe("Invalid request");
-        response.Detail.ShouldBe("Invalid request.");
-    }
-
-    [Test]
-    public void Create_returns_unexpected_response_for_unknown_exception()
-    {
-        var factory = CreateFactory();
-        var exception = new InvalidOperationException("Boom");
-
-        var response = factory.Create(exception);
-
-        response.StatusCode.ShouldBe(500);
-        response.Title.ShouldBe("Unexpected error");
-        response.Detail.ShouldBe("An unexpected error occurred while processing the request.");
-    }
-
-    private static JsonApiExceptionMapperFactory CreateFactory()
-    {
-        return new JsonApiExceptionMapperFactory(
+        _factory = new JsonApiExceptionMapperFactory(
         [
             new ApiRequestValidationJsonApiExceptionMapper(),
             new CustomerContactAlreadyExistsJsonApiExceptionMapper(),
@@ -87,5 +21,53 @@ public sealed class JsonApiExceptionMapperFactoryTests
             new BadHttpRequestJsonApiExceptionMapper(),
             new UnexpectedJsonApiExceptionMapper()
         ]);
+    }
+
+    [TestCaseSource(nameof(ExceptionCases))]
+    public void Create_returns_expected_response_for_known_exception(
+        Func<Exception> exceptionFactory,
+        int expectedStatusCode,
+        string expectedTitle,
+        string expectedDetail)
+    {
+        var exception = exceptionFactory();
+
+        var response = _factory.Create(exception);
+
+        response.StatusCode.ShouldBe(expectedStatusCode);
+        response.Title.ShouldBe(expectedTitle);
+        response.Detail.ShouldBe(expectedDetail);
+    }
+
+    private static IEnumerable<TestCaseData> ExceptionCases()
+    {
+        return
+        [
+            new TestCaseData(
+                () => (Exception)new ApiRequestValidationException("Invalid customer id", "Customer id must be a number greater than zero."),
+                StatusCodes.Status400BadRequest,
+                "Invalid customer id",
+                "Customer id must be a number greater than zero."),
+            new TestCaseData(
+                () => (Exception)new CustomerContactAlreadyExistsException(42),
+                StatusCodes.Status409Conflict,
+                "Customer contact already exists",
+                "Customer contact '42' already exists."),
+            new TestCaseData(
+                () => (Exception)new CustomerContactNotFoundException(99),
+                StatusCodes.Status404NotFound,
+                "Customer contact not found",
+                "Customer contact '99' was not found."),
+            new TestCaseData(
+                () => (Exception)new BadHttpRequestException("Malformed"),
+                StatusCodes.Status400BadRequest,
+                "Invalid request",
+                "Invalid request."),
+            new TestCaseData(
+                () => (Exception)new InvalidOperationException("Boom"),
+                StatusCodes.Status500InternalServerError,
+                "Unexpected error",
+                "An unexpected error occurred while processing the request.")
+        ];
     }
 }
