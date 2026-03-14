@@ -94,9 +94,14 @@ The point of no easy return happens when legacy read or write paths are no longe
 
 The workshop keeps this explicit so teams can decide rollback strategy before crossing that point.
 
-## Validation strategy
+## Completion standard
 
-- Build and tests for each change.
-- Migration execution checks.
-- Smoke checks through `.http` requests.
-- Verification scripts that enforce quality gates before closure.
+A task is complete only when DoD is satisfied end-to-end:
+
+- build passes in Release
+- scripts succeed
+- migrations succeed
+- `.http` checks succeed
+- acceptance/integration/unit tests are green
+- coverage and mutation thresholds are met
+- docs and developer experience remain aligned with behavior

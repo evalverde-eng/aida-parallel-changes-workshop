@@ -33,7 +33,8 @@ Adopt Option B.
 ## Consequences
 
 - `main` is the only long-lived branch for workshop execution.
-- Participants must label commits by phase intent: `[expand]`, `[migrate]`, or `[contract]`.
+- Student workshop commits can be labelled by phase intent: `[expand]`, `[migrate]`, or `[contract]`.
+- Repository maintenance commits are not required to use phase labels.
 - Commits must remain small and single-intention.
 
 ## Risks

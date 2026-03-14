@@ -8,41 +8,52 @@ Help participants evolve API and data contracts with production-grade discipline
 
 State this explicitly at the start:
 
-- This is a workshop, but participants must work as in real day-to-day delivery.
-- OpenAPI is part of the workflow, not optional documentation.
-- Every cycle must include tests, refactor, and documentation alignment.
+- treat the exercise as real engineering work
+- preserve accepted behavior while evolving
+- keep changes small and verifiable
+- keep tests, docs, and executable HTTP contracts synchronized
 
 ## Suggested timeline
 
-- 15 min: context and rules.
-- 75 min: iterative implementation.
-- 20 min: debrief and architecture review.
+- 15 min: context and constraints
+- 75 min: guided implementation cycles
+- 20 min: debrief and architecture review
 
-## Recommended team setup
+## Team setup
 
-- Pair or mob in groups of 2-3.
-- Rotate driver every 15 minutes.
-- Navigator enforces TDD and no-regression discipline.
+- 2-3 participants per group
+- rotate driver every 15 minutes
+- navigator enforces TDD and non-regression constraints
 
-## Facilitation sequence
+## Recommended facilitation sequence
 
-1. Run baseline (`up`, `smoke`, `test`).
-2. Explain current contract and OpenAPI document.
-3. Execute one full double-loop TDD cycle live.
-4. Show refactor of production and tests in the same cycle.
-5. Show commit message with phase marker (`expand`, `migrate`, `contract`).
+1. Run baseline stack (`up`, `smoke`, `test`).
+2. Show OpenAPI and current v1 contract.
+3. Demonstrate one full red-green-refactor cycle.
+4. Show production+test refactor in same cycle.
+5. Show a small cohesive commit message with clear intent.
+
+## Phase markers in workshop context
+
+For student workshop commits, phase markers can be used to clarify intent:
+
+- `[expand]`
+- `[migrate]`
+- `[contract]`
+
+For repository maintenance commits outside student exercises, these markers are optional and not required.
 
 ## Coaching checkpoints
 
-- Are participants preserving compatibility?
-- Are they checking OpenAPI after contract changes?
-- Are tests behavior-focused (not structure-focused)?
-- Are commits small and phase-explicit?
+- Is compatibility preserved?
+- Are tests behavior-focused and readable?
+- Are boundaries clean between transport, application, domain, and infrastructure?
+- Are docs and `.http` files updated together with code?
 - Is `to-do.md` updated without mutating accepted AC?
 
 ## Debrief prompts
 
-- Which change improved safety the most?
-- Where did design pressure appear first?
+- Which change reduced delivery risk most?
+- Where did coupling pressure appear first?
 - Which mutant was hardest to kill and why?
-- Which documentation update prevented confusion?
+- Which documentation improvement removed most confusion?

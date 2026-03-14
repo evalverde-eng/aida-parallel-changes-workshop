@@ -95,6 +95,12 @@ Anti-pattern examples that are not allowed:
 
 - Tests that only verify DTO default values.
 - Tests that assert framework/runtime internals instead of system behavior.
+- Tests that assert infrastructure primitive state as a primary behavior claim (for example checking `SqlConnection.State` instead of repository-observable outcomes).
+
+Security and configuration test rules:
+
+- Do not hardcode credentials in test fixtures when an environment-based source is available.
+- Prefer environment variables for testcontainer secrets and runtime-sensitive values.
 
 ## Script rules
 

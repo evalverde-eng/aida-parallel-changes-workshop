@@ -1,137 +1,188 @@
 # AIDA Parallel Change Workshop
 
-This repository simulates day-to-day API evolution work under strict compatibility constraints.
+This repository provides the workshop baseline for evolving an API safely with strict engineering discipline.
 
 - Runtime: .NET 10, ASP.NET Core, SQL Server, Dapper, FluentMigrator.
-- Branch model: single long-lived branch, `main`.
-- Initial API surface:
+- Branch model: single long-lived branch `main`.
+- Current API baseline:
   - `GET /api/v1/customer-contacts/{customerId}`
   - `POST /api/v1/customer-contacts`
   - `PUT /api/v1/customer-contacts/{customerId}`
+  - `GET /health`
+  - `GET /openapi/v1.json`
+
+## Documentation map
+
+- `AGENTS.md`
+- `to-do.md`
+- `docs/INSTRUCTIONS.md`
+- `docs/DOCUMENTATION.md`
+- `docs/FACILITATION.md`
+- `docs/adr/*.md`
 
 ## Prerequisites
 
 - .NET 10 SDK
 - Docker Engine or Docker Desktop with `docker compose`
-- PowerShell 7+ for `*.ps1` scripts (optional)
+- PowerShell 7+ (optional, for `*.ps1` scripts)
 - JetBrains Rider 2024.3+ (optional, for shared `.run` configurations)
-
-## Architecture at a glance
-
-```mermaid
-flowchart LR
-  Consumer[API Consumer] --> Controller[V1 HTTP Controller]
-  Controller --> GetHandler[GetCustomerContactHandler]
-  Controller --> CreateHandler[CreateCustomerContactHandler]
-  Controller --> UpdateHandler[UpdateCustomerContactHandler]
-  GetHandler --> ReaderPort[CustomerContactReader]
-  CreateHandler --> CreatorPort[CustomerContactCreator]
-  UpdateHandler --> UpdaterPort[CustomerContactUpdater]
-  ReaderPort --> SqlRepo[SqlServerCustomerContactRepository]
-  CreatorPort --> SqlRepo
-  UpdaterPort --> SqlRepo
-  SqlRepo --> Sql[(SQL Server)]
-  Migrator[FluentMigrator runner] --> Sql
-```
-
-## Execution flow
-
-```mermaid
-flowchart TD
-  A[Copy .env.example to .env] --> B[Run scripts/up]
-  B --> C[Run scripts/smoke]
-  C --> D[Run scripts/test]
-  D --> E[Run scripts/coverage]
-  E --> F[Run scripts/mutation]
-  F --> G[Run scripts/verify]
-```
 
 ## Quick start from zero
 
-1) Clone and enter the repository.
-
-2) Create local configuration file:
+1. Clone the repository.
+2. Create local environment file from example.
+3. Start stack and apply migrations.
+4. Run executable HTTP documentation checks.
+5. Stop stack.
 
 ```bash
 cp .env.example .env
-```
-
-3) Start services, apply migrations, and boot API:
-
-```bash
 ./scripts/up.sh
-```
-
-4) Run smoke checks (scenario + health + OpenAPI):
-
-```bash
 ./scripts/smoke.sh
-```
-
-5) Stop everything:
-
-```bash
 ./scripts/down.sh
 ```
 
-PowerShell equivalents are available for each script (`*.ps1`).
+PowerShell equivalents are available (`*.ps1`).
 
-## Environment variables
+## Environment configuration
 
-Scripts read `.env` when present. Defaults are defined in `scripts/common.sh` and `scripts/common.ps1`.
+Scripts load `.env` when present and apply defaults when missing.
 
-Key variables:
+Configure from `.env.example`:
 
 - `AIDA_SQL_DATABASE`
 - `AIDA_SQL_USER`
 - `AIDA_SQL_PASSWORD`
 - `AIDA_SQL_PORT`
 - `AIDA_API_PORT`
+- `AIDA_SQL_READY_ATTEMPTS`
+- `AIDA_SQL_READY_SLEEP_SECONDS`
 - `AIDA_HTTP_ENV_FILE`
 - `AIDA_HTTP_ENV`
+- `AIDA_COMPOSE_PROJECT_NAME`
 
-## OpenAPI and health endpoints
+`AIDA_COMPOSE_PROJECT_NAME` controls the Docker Compose group/project so all services run under the same stack name.
 
-- Health check: `GET /health`
-- OpenAPI document: `GET /openapi/v1.json`
+## Runtime flow and architecture
 
-Both endpoints are validated in acceptance tests and `.http` smoke scripts.
+```mermaid
+flowchart LR
+  Client[Client] --> Controller[V1 Controller]
+  Controller --> GetHandler[Get Handler]
+  Controller --> CreateHandler[Create Handler]
+  Controller --> UpdateHandler[Update Handler]
+  GetHandler --> ReaderPort[Reader Port]
+  CreateHandler --> CreatorPort[Creator Port]
+  UpdateHandler --> UpdaterPort[Updater Port]
+  ReaderPort --> Repo[SQL Repository]
+  CreatorPort --> Repo
+  UpdaterPort --> Repo
+  Repo --> Sql[(SQL Server)]
+```
+
+### Sequence diagram: GET
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant V as CustomerContactsV1Controller
+    participant H as GetCustomerContactHandler
+    participant R as CustomerContactReader
+    participant S as SqlServerCustomerContactRepository
+    participant D as SQL Server
+
+    C->>V: GET /api/v1/customer-contacts/{id}
+    V->>V: parse route id
+    V->>H: HandleAsync(query)
+    H->>R: FindByIdAsync(customerId)
+    R->>S: FindByIdAsync(customerId)
+    S->>D: SELECT by customer_id
+    D-->>S: row or no row
+    S-->>R: Found(contact) or NotFound(customerId)
+    R-->>H: result
+    H-->>V: result
+    V-->>C: 200 JSON:API or 404 JSON:API
+```
+
+### Sequence diagram: POST
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant V as CustomerContactsV1Controller
+    participant H as CreateCustomerContactHandler
+    participant P as CustomerContactCreator
+    participant S as SqlServerCustomerContactRepository
+    participant D as SQL Server
+
+    C->>V: POST /api/v1/customer-contacts
+    V->>V: map and validate request
+    V->>H: HandleAsync(command)
+    H->>P: CreateAsync(contact)
+    P->>S: CreateAsync(contact)
+    S->>D: INSERT customer_contacts
+    D-->>S: success or duplicate key
+    S-->>P: completed or typed exception
+    P-->>H: completed or typed exception
+    H-->>V: completed or typed exception
+    V-->>C: 201 JSON:API, 400 JSON:API, or 409 JSON:API
+```
+
+### Sequence diagram: PUT
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant V as CustomerContactsV1Controller
+    participant H as UpdateCustomerContactHandler
+    participant P as CustomerContactUpdater
+    participant S as SqlServerCustomerContactRepository
+    participant D as SQL Server
+
+    C->>V: PUT /api/v1/customer-contacts/{id}
+    V->>V: parse route id and map request
+    V->>H: HandleAsync(command)
+    H->>P: UpdateAsync(contact)
+    P->>S: UpdateAsync(contact)
+    S->>D: UPDATE customer_contacts
+    D-->>S: affected rows
+    S-->>P: completed or not-found exception
+    P-->>H: completed or typed exception
+    H-->>V: completed or typed exception
+    V-->>C: 204, 400 JSON:API, or 404 JSON:API
+```
 
 ## Executable HTTP documentation
 
-Main contract requests:
+Contract outcomes in `http/v1/customer-contacts`:
 
-- `http/v1/customer-contacts/get-customer-contact-200.http`
-- `http/v1/customer-contacts/get-customer-contact-400.http`
-- `http/v1/customer-contacts/get-customer-contact-404.http`
-- `http/v1/customer-contacts/create-customer-contact-201.http`
-- `http/v1/customer-contacts/create-customer-contact-400.http`
-- `http/v1/customer-contacts/create-customer-contact-409.http`
-- `http/v1/customer-contacts/update-customer-contact-204.http`
-- `http/v1/customer-contacts/update-customer-contact-400.http`
-- `http/v1/customer-contacts/update-customer-contact-404.http`
+- `get-customer-contact-200.http`
+- `get-customer-contact-400.http`
+- `get-customer-contact-404.http`
+- `create-customer-contact-201.http`
+- `create-customer-contact-400.http`
+- `create-customer-contact-409.http`
+- `update-customer-contact-204.http`
+- `update-customer-contact-400.http`
+- `update-customer-contact-404.http`
+- `scenario-create-get-update-get.http`
 
-System requests:
+System coverage in `http/system`:
 
-- `http/system/health-200.http`
-- `http/system/openapi-v1-200.http`
-
-Smoke scenario:
-
-- `http/v1/customer-contacts/scenario-create-get-update-get.http`
+- `health-200.http`
+- `openapi-v1-200.http`
 
 ## Scripts
 
-- `scripts/up.*`: build images, start SQL/API, recreate database, run migrations.
-- `scripts/down.*`: stop and remove containers.
-- `scripts/migrate.*`: start SQL, recreate database, run migrator only.
-- `scripts/smoke.*`: execute smoke `.http` requests through `ijhttp` container.
-- `scripts/smoke.*`: execute all executable HTTP docs in `http/system` and `http/v1/customer-contacts`.
-- `scripts/test.*`: run fast test suite (`TestCategory!=NarrowIntegration`).
-- `scripts/coverage.*`: enforce line and branch coverage thresholds.
-- `scripts/mutation.*`: run Stryker mutation testing.
-- `scripts/check-shell-eol.*`: enforce LF-only for `*.sh`.
-- `scripts/verify.*`: end-to-end local quality gate.
+- `scripts/up.*`: build needed images, start stack, recreate DB, run migrations, boot API.
+- `scripts/down.*`: stop and remove compose resources.
+- `scripts/migrate.*`: start SQL and run migrations only.
+- `scripts/smoke.*`: execute all `.http` docs in `http/system` and `http/v1/customer-contacts`.
+- `scripts/test.*`: run fast suite (`TestCategory!=NarrowIntegration`).
+- `scripts/coverage.*`: enforce 100% line and branch coverage thresholds.
+- `scripts/mutation.*`: run Stryker mutation with 100% thresholds.
+- `scripts/check-shell-eol.*`: fail on CRLF in `*.sh`.
+- `scripts/verify.*`: full local quality gate sequence.
 
 ## Rider integration
 
@@ -141,21 +192,19 @@ Shared run configurations are committed under `.run/`:
 - `Docker Down`
 - `Verify Local`
 
-These configurations run the same scripts used in CLI workflows and keep Docker services under the same compose project/group used by `scripts/common.*`.
+Recommended Rider flow:
 
-Recommended Rider setup:
-
-1. Open the repository root as project.
-2. Enable Docker integration in Rider settings.
-3. Use `Docker Up` to start SQL/API stack.
-4. Use `Verify Local` for end-to-end quality checks.
-5. Use `Docker Down` to stop and cleanup services.
+1. Open repository root.
+2. Enable Docker integration in Rider.
+3. Run `Docker Up`.
+4. Run `Verify Local` when needed.
+5. Run `Docker Down` to clean stack.
 
 ## Quality gates
 
 ```bash
 dotnet restore Aida.ParallelChange.sln
-dotnet build Aida.ParallelChange.sln -c Release
+dotnet build Aida.ParallelChange.sln -c Release -warnaserror
 ./scripts/check-shell-eol.sh
 ./scripts/test.sh
 dotnet test Aida.ParallelChange.sln -c Release --filter "TestCategory=NarrowIntegration"
@@ -164,21 +213,18 @@ dotnet test Aida.ParallelChange.sln -c Release --filter "TestCategory=NarrowInte
 ./scripts/up.sh
 ./scripts/smoke.sh
 ./scripts/down.sh
+./scripts/verify.sh
 ```
 
-## Workshop operating rules
+## Assertion libraries
 
-- Work as in production day-to-day, not as a toy exercise.
-- Keep backward compatibility for existing consumers.
-- Use OpenAPI continuously while evolving contracts.
-- Follow small TDD cycles and refactor tests and production code together.
-- Keep commits small and explicit (phase + intent + rationale).
+- `Shouldly` is available.
+- `AwesomeAssertions` is available.
+- `FluentAssertions` is intentionally not used as fallback.
 
-## Documentation map
+## Working rules summary
 
-- `AGENTS.md`
-- `docs/INSTRUCTIONS.md`
-- `docs/DOCUMENTATION.md`
-- `docs/FACILITATION.md`
-- `docs/adr/`
-- `to-do.md`
+- Keep changes small and coherent.
+- Keep tests behavior-focused.
+- Keep docs, scripts, `.http`, and code aligned.
+- Treat `AGENTS.md` and `to-do.md` as mandatory operational constraints.

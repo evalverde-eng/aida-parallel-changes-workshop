@@ -261,19 +261,20 @@ Do not optimise for speed at the cost of clarity.
 
 ## Validation commands
 
-Run these regularly while working:
+### WSL / Bash
 
-## WSL
 ```bash
 dotnet restore Aida.ParallelChange.sln
-dotnet build Aida.ParallelChange.sln -c Release
+dotnet build Aida.ParallelChange.sln -c Release -warnaserror
+./scripts/check-shell-eol.sh
 ./scripts/test.sh
-dotnet test Aida.ParallelChange.sln -c Release
+dotnet test Aida.ParallelChange.sln -c Release --filter "TestCategory=NarrowIntegration"
 ./scripts/coverage.sh
 ./scripts/mutation.sh
 ./scripts/up.sh
 ./scripts/smoke.sh
 ./scripts/down.sh
+./scripts/verify.sh
 ```
 
 ## Windows
@@ -288,6 +289,7 @@ dotnet test Aida.ParallelChange.sln -c Release --filter
 ./scripts/up.ps1
 ./scripts/smoke.ps1
 ./scripts/down.ps1
+./scripts/verify.ps1
 ```
 
 ## Final reminder
