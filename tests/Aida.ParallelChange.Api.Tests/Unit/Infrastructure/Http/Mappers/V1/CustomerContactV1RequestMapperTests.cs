@@ -1,3 +1,4 @@
+using Aida.ParallelChange.Api.Domain;
 using Aida.ParallelChange.Api.Infrastructure.Http.Errors;
 using Aida.ParallelChange.Api.Infrastructure.Http.Mappers.V1;
 
@@ -11,8 +12,8 @@ public sealed class CustomerContactV1RequestMapperTests
     {
         var contact = CustomerContactV1RequestMapper.ToDomain(7, "Grace Hopper", "+1 5550100", "grace.hopper@example.com");
 
-        contact.CustomerId.Value.ShouldBe(7);
-        contact.ContactName.Value.ShouldBe("Grace Hopper");
+        contact.CustomerId.ShouldBe(new CustomerId(7));
+        contact.ContactName.ShouldBe(new ContactName("Grace Hopper"));
     }
 
     [Test]

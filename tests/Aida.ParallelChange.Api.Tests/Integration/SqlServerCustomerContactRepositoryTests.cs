@@ -91,7 +91,7 @@ public sealed class SqlServerCustomerContactRepositoryTests
         var found = result as FindCustomerContactResult.Found;
 
         found.ShouldNotBeNull();
-        found.CustomerContact.ContactName.Value.ShouldBe("Ada Lovelace");
+        found.CustomerContact.ContactName.ShouldBe(new ContactName("Ada Lovelace"));
     }
 
     [Test]
@@ -142,7 +142,7 @@ public sealed class SqlServerCustomerContactRepositoryTests
         var found = result as FindCustomerContactResult.Found;
 
         found.ShouldNotBeNull();
-        found.CustomerContact.ContactName.Value.ShouldBe("Updated Contact");
+        found.CustomerContact.ContactName.ShouldBe(new ContactName("Updated Contact"));
     }
 
     [Test]
@@ -172,6 +172,6 @@ public sealed class SqlServerCustomerContactRepositoryTests
         var notFound = result as FindCustomerContactResult.NotFound;
 
         notFound.ShouldNotBeNull();
-        notFound.CustomerId.Value.ShouldBe(999);
+        notFound.CustomerId.ShouldBe(new CustomerId(999));
     }
 }
