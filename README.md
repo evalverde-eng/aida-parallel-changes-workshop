@@ -14,6 +14,7 @@ This repository simulates day-to-day API evolution work under strict compatibili
 - .NET 10 SDK
 - Docker Engine or Docker Desktop with `docker compose`
 - PowerShell 7+ for `*.ps1` scripts (optional)
+- JetBrains Rider 2024.3+ (optional, for shared `.run` configurations)
 
 ## Architecture at a glance
 
@@ -125,11 +126,30 @@ Smoke scenario:
 - `scripts/down.*`: stop and remove containers.
 - `scripts/migrate.*`: start SQL, recreate database, run migrator only.
 - `scripts/smoke.*`: execute smoke `.http` requests through `ijhttp` container.
+- `scripts/smoke.*`: execute all executable HTTP docs in `http/system` and `http/v1/customer-contacts`.
 - `scripts/test.*`: run fast test suite (`TestCategory!=NarrowIntegration`).
 - `scripts/coverage.*`: enforce line and branch coverage thresholds.
 - `scripts/mutation.*`: run Stryker mutation testing.
 - `scripts/check-shell-eol.*`: enforce LF-only for `*.sh`.
 - `scripts/verify.*`: end-to-end local quality gate.
+
+## Rider integration
+
+Shared run configurations are committed under `.run/`:
+
+- `Docker Up`
+- `Docker Down`
+- `Verify Local`
+
+These configurations run the same scripts used in CLI workflows and keep Docker services under the same compose project/group used by `scripts/common.*`.
+
+Recommended Rider setup:
+
+1. Open the repository root as project.
+2. Enable Docker integration in Rider settings.
+3. Use `Docker Up` to start SQL/API stack.
+4. Use `Verify Local` for end-to-end quality checks.
+5. Use `Docker Down` to stop and cleanup services.
 
 ## Quality gates
 
