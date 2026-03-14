@@ -24,6 +24,15 @@ public sealed class PhoneNumberTests
     }
 
     [Test]
+    public void Constructor_throws_when_phone_is_null()
+    {
+        var exception = Should.Throw<ArgumentException>(() => new PhoneNumber(null!));
+
+        exception.ParamName.ShouldBe("phoneNumber");
+        exception.Message.ShouldStartWith("Phone number is required.");
+    }
+
+    [Test]
     public void Constructor_accepts_phone_with_exactly_30_characters()
     {
         var phoneNumber = new string('1', 30);

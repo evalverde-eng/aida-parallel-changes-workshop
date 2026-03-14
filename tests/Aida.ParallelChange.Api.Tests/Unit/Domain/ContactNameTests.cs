@@ -22,4 +22,13 @@ public sealed class ContactNameTests
         exception.ParamName.ShouldBe("contactName");
         exception.Message.ShouldStartWith("Contact name is required.");
     }
+
+    [Test]
+    public void Constructor_throws_when_name_is_null()
+    {
+        var exception = Should.Throw<ArgumentException>(() => new ContactName(null!));
+
+        exception.ParamName.ShouldBe("contactName");
+        exception.Message.ShouldStartWith("Contact name is required.");
+    }
 }

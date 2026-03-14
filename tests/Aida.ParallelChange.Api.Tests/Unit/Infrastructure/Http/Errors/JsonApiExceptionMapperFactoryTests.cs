@@ -27,6 +27,8 @@ public sealed class JsonApiExceptionMapperFactoryTests
         var factory = CreateFactory();
         var exception = new CustomerContactAlreadyExistsException(42);
 
+        exception.CustomerId.ShouldBe(42);
+
         var response = factory.Create(exception);
 
         response.StatusCode.ShouldBe(409);
@@ -39,6 +41,8 @@ public sealed class JsonApiExceptionMapperFactoryTests
     {
         var factory = CreateFactory();
         var exception = new CustomerContactNotFoundException(99);
+
+        exception.CustomerId.ShouldBe(99);
 
         var response = factory.Create(exception);
 
