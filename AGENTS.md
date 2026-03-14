@@ -27,6 +27,15 @@ Every change must be coherent, cohesive, rigorous, and complete.
 - New tests can be added at any time.
 - Nothing already covered by accepted AC can break.
 
+## Local execution plan policy (`plan.md`)
+
+- `plan.md` is the mandatory local execution plan while work is in progress.
+- `plan.md` must be complete, rigorous, coherent, cohesive, and detailed enough to execute without ambiguity.
+- `plan.md` must be updated continuously as tasks complete, fail, or are blocked.
+- If a new approved plan is different from the current one, rewrite `plan.md` completely with the new plan.
+- `plan.md` is local-only and must never be versioned.
+- Verification scripts must fail if `plan.md` is tracked by git.
+
 ## Design and coding rules
 
 - No comments in executable code.
@@ -34,6 +43,7 @@ Every change must be coherent, cohesive, rigorous, and complete.
 - Enforce separation of concerns.
 - Enforce SOLID.
 - Enforce dependency inversion and inversion of control.
+- Avoid use of magic numbers and magic strings
 - Respect the Law of Demeter.
 - Prefer object calisthenics where applicable.
 - Preserve encapsulation and immutability where applicable.

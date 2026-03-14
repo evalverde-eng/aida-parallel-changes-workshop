@@ -5,6 +5,15 @@ source "$(dirname "$0")/common.sh"
 
 ensure_repo_root
 
+ensure_plan_is_local_only() {
+  if git ls-files --error-unmatch plan.md >/dev/null 2>&1; then
+    echo "plan.md is local-only and must not be tracked by git." >&2
+    return 1
+  fi
+}
+
+ensure_plan_is_local_only
+
 cleanup() {
   "$AIDA_REPO_ROOT/scripts/down.sh" >/dev/null 2>&1 || true
 }

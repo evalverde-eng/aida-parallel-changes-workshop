@@ -18,3 +18,4 @@ coverage*.json
 .env.*
 !.env.example
 .tools/
+plan.md

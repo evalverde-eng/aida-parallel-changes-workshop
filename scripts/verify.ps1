@@ -11,8 +11,16 @@ function Invoke-Cleanup {
     }
 }
 
+function Assert-PlanIsLocalOnly {
+    git ls-files --error-unmatch plan.md *> $null
+    if ($LASTEXITCODE -eq 0) {
+        throw 'plan.md is local-only and must not be tracked by git.'
+    }
+}
+
 try {
     Invoke-InAidaRepoRoot {
+        Assert-PlanIsLocalOnly
         Assert-DockerAvailable
 
         dotnet restore Aida.ParallelChange.sln
