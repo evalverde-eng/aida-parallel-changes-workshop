@@ -99,4 +99,4 @@ The workshop keeps this explicit so teams can decide rollback strategy before cr
 - Build and tests for each change.
 - Migration execution checks.
 - Smoke checks through `.http` requests.
-- Branch replay and commit-by-commit verification scripts.
+- Verification scripts that enforce quality gates before closure.

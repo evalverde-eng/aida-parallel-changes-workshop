@@ -108,7 +108,6 @@ Required scripts must work in both shell and PowerShell variants:
 - `scripts/coverage.*`
 - `scripts/mutation.*`
 - `scripts/verify.*`
-- `scripts/workshop-replay.*`
 - `scripts/check-shell-eol.*`
 
 For shell scripts:

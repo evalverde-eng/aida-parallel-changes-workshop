@@ -7,9 +7,14 @@
 - Rule: one failing test at a time.
 - Rule: accepted AC are immutable and cannot be weakened.
 - Rule: no accepted AC can regress after refactor.
+- Supersession policy: accepted AC can change only with explicit product decision, ADR evidence, and a traceable note in this file.
 - Baseline reset completed on `main` from `Aida.ParallelChange.Workshop.clean`; parity drift is limited to runtime compatibility fixes in exception handling pipeline.
 - Current blocker: Docker is unavailable in this environment (`docker info` exits with `139`), so Docker-dependent script validation remains pending.
 - Mutation and coverage gates run on fast non-Docker scope; SQL adapter behavior remains covered by integration tests when Docker is available.
+
+## Supersession log
+
+- SS-2026-03-14-001: `OP-REPLAY-001` retired by explicit product decision and documented in `docs/adr/ADR-005-retire-workshop-replay-scripts.md`. AC-14 coverage now validates operational scripts: up, down, migrate, smoke, test, coverage, mutation, verify, and shell-eol checks.
 
 ## Acceptance criteria and planned tests
 
@@ -28,7 +33,7 @@
 | AC-11 | JSON:API media type consistency | AT-CONTRACT-001, AT-CONTRACT-002 | done |
 | AC-12 | `.http` for all statuses | HTTP-GET-200/400/404, HTTP-POST-201/400/409, HTTP-PUT-204/400/404 | done |
 | AC-13 | manual scenario create-get-update-get works | HTTP-SCENARIO-001 | done |
-| AC-14 | required scripts run | OP-UP-001, OP-MIG-001, OP-SMOKE-001, OP-TEST-001, OP-VERIFY-001, OP-REPLAY-001 | pending |
+| AC-14 | required scripts run | OP-UP-001, OP-DOWN-001, OP-MIG-001, OP-SMOKE-001, OP-TEST-001, OP-COVERAGE-001, OP-MUTATION-001, OP-VERIFY-001, OP-EOL-001 | pending |
 | AC-15 | all `.sh` files are LF-only | OP-EOL-001 | done |
 | AC-16 | 100% line + branch coverage (non-config code) | Q-COV-001 | done |
 | AC-17 | 100% non-equivalent mutants killed | Q-MUT-001 | done |

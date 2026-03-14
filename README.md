@@ -130,7 +130,6 @@ Smoke scenario:
 - `scripts/mutation.*`: run Stryker mutation testing.
 - `scripts/check-shell-eol.*`: enforce LF-only for `*.sh`.
 - `scripts/verify.*`: end-to-end local quality gate.
-- `scripts/workshop-replay.*`: replay commit history (`--dry-run`, `--auto`, `--delay`).
 
 ## Quality gates
 

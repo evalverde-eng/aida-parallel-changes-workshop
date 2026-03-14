@@ -49,8 +49,8 @@ Adopt Option B.
 ## Mitigations
 
 - Use shared scripts and common branch checks.
-- Use replay and history verification scripts.
+- Keep commit history disciplined and phase intent explicit.
 
 ## Rollback strategy
 
-If branch drift becomes unmanageable, rebuild phase branches from a validated base branch and replay phase commits in order.
+If branch drift becomes unmanageable, rebuild phase branches from a validated base branch and reapply curated commits in order.
