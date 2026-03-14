@@ -2,9 +2,9 @@ namespace Aida.ParallelChange.Api.Infrastructure.Http.Errors;
 
 public sealed class JsonApiExceptionMapperFactory
 {
-    private readonly IReadOnlyList<IJsonApiExceptionMapper> _mappers;
+    private readonly IReadOnlyList<JsonApiExceptionMapper> _mappers;
 
-    public JsonApiExceptionMapperFactory(IEnumerable<IJsonApiExceptionMapper> mappers)
+    public JsonApiExceptionMapperFactory(IEnumerable<JsonApiExceptionMapper> mappers)
     {
         _mappers = mappers.ToList();
     }

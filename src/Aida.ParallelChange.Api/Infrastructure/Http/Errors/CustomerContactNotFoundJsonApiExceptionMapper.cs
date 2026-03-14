@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Aida.ParallelChange.Api.Infrastructure.Http.Errors;
 
-public sealed class CustomerContactNotFoundJsonApiExceptionMapper : IJsonApiExceptionMapper
+public sealed class CustomerContactNotFoundJsonApiExceptionMapper : JsonApiExceptionMapper
 {
     private const string Title = "Customer contact not found";
 

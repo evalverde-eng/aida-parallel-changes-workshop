@@ -1,6 +1,6 @@
 namespace Aida.ParallelChange.Api.Infrastructure.Http.Errors;
 
-public interface IJsonApiExceptionMapper
+public interface JsonApiExceptionMapper
 {
     bool CanHandle(Exception exception);
 

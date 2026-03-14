@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Aida.ParallelChange.Api.Infrastructure.Http.Errors;
 
-public sealed class BadHttpRequestJsonApiExceptionMapper : IJsonApiExceptionMapper
+public sealed class BadHttpRequestJsonApiExceptionMapper : JsonApiExceptionMapper
 {
     private const string Title = "Invalid request";
     private const string Detail = "Invalid request.";

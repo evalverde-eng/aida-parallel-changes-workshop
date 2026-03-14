@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Aida.ParallelChange.Api.Infrastructure.Http.Errors;
 
-public sealed class CustomerContactAlreadyExistsJsonApiExceptionMapper : IJsonApiExceptionMapper
+public sealed class CustomerContactAlreadyExistsJsonApiExceptionMapper : JsonApiExceptionMapper
 {
     private const string Title = "Customer contact already exists";
 

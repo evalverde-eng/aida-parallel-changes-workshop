@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Aida.ParallelChange.Api.Infrastructure.Http.Errors;
 
-public sealed class ApiRequestValidationJsonApiExceptionMapper : IJsonApiExceptionMapper
+public sealed class ApiRequestValidationJsonApiExceptionMapper : JsonApiExceptionMapper
 {
     public bool CanHandle(Exception exception)
     {

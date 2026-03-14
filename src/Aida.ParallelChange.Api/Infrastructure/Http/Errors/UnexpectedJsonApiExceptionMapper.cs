@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Aida.ParallelChange.Api.Infrastructure.Http.Errors;
 
-public sealed class UnexpectedJsonApiExceptionMapper : IJsonApiExceptionMapper
+public sealed class UnexpectedJsonApiExceptionMapper : JsonApiExceptionMapper
 {
     private const string Title = "Unexpected error";
     private const string Detail = "An unexpected error occurred while processing the request.";
