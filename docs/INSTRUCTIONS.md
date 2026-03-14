@@ -121,6 +121,8 @@ How you reach that target while protecting the current system is part of the exe
   - `[expand]`
   - `[migrate]`
   - `[contract]`
+- These phase markers are part of the workshop student workflow.
+- Repository maintenance commits outside workshop execution should not use these markers.
 
 Recommended message format:
 
@@ -261,35 +263,12 @@ Do not optimise for speed at the cost of clarity.
 
 Run these regularly while working:
 
-```bash
-dotnet restore Aida.ParallelChange.sln
-dotnet build Aida.ParallelChange.sln -c Release
-./scripts/test.sh
-dotnet test Aida.ParallelChange.sln -c Release --filter "TestCategory=NarrowIntegration"
-./scripts/coverage.sh
-./scripts/mutation.sh
-./scripts/up.sh
-./scripts/smoke.sh
-./scripts/down.sh
-```
-
-## Final reminder
-
-This exercise is about evolving a live system responsibly.
-
-The challenge is not to produce a dramatic before-and-after transformation.
-The challenge is to make progress without creating unnecessary risk.
-
-Keep the system safe.
-Keep the changes understandable.
-Keep the work deliberate.
-
 ## WSL
 ```bash
 dotnet restore Aida.ParallelChange.sln
 dotnet build Aida.ParallelChange.sln -c Release
 ./scripts/test.sh
-dotnet test Aida.ParallelChange.sln -c Release --filter "TestCategory=NarrowIntegration"
+dotnet test Aida.ParallelChange.sln -c Release
 ./scripts/coverage.sh
 ./scripts/mutation.sh
 ./scripts/up.sh
@@ -310,3 +289,14 @@ dotnet test Aida.ParallelChange.sln -c Release --filter
 ./scripts/smoke.ps1
 ./scripts/down.ps1
 ```
+
+## Final reminder
+
+This exercise is about evolving a live system responsibly.
+
+The challenge is not to produce a dramatic before-and-after transformation.
+The challenge is to make progress without creating unnecessary risk.
+
+Keep the system safe.
+Keep the changes understandable.
+Keep the work deliberate.

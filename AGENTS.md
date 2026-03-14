@@ -116,10 +116,8 @@ For shell scripts:
 
 - Commits are mandatory while working.
 - Commits must be small and single-intention.
-- Every commit message must include phase marker and intent:
-  - `[expand]`
-  - `[migrate]`
-  - `[contract]`
+- Commit messages must explain intent clearly.
+- Phase markers (`[expand]`, `[migrate]`, `[contract]`) are workshop markers for student exercise commits, not a global requirement for repository maintenance commits.
 
 ## Commit identity policy
 
