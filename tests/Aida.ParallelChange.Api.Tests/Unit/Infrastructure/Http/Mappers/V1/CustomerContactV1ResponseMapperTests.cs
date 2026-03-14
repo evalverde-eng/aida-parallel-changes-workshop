@@ -9,7 +9,12 @@ public sealed class CustomerContactV1ResponseMapperTests
     [Test]
     public void ToDocument_maps_customer_contact_into_json_api_document()
     {
-        var contact = CustomerContactBuilder.FromPrimitives(9, "Grace Hopper", "+1 5550100", "grace.hopper@example.com");
+        var contact = CustomerContactBuilder.Create()
+            .WithCustomerId(9)
+            .WithContactName("Grace Hopper")
+            .WithPhoneNumber("+1 5550100")
+            .WithEmailAddress("grace.hopper@example.com")
+            .Build();
 
         var document = CustomerContactV1ResponseMapper.ToDocument(contact);
 

@@ -79,7 +79,12 @@ public sealed class SqlServerCustomerContactRepositoryTests
     {
         var connectionFactory = new DatabaseConnectionFactory(_connectionString);
         var repository = new SqlServerCustomerContactRepository(connectionFactory);
-        var contact = CustomerContactBuilder.FromPrimitives(41, "Ada Lovelace", "+44 123456789", "ada.lovelace@example.com");
+        var contact = CustomerContactBuilder.Create()
+            .WithCustomerId(41)
+            .WithContactName("Ada Lovelace")
+            .WithPhoneNumber("+44 123456789")
+            .WithEmailAddress("ada.lovelace@example.com")
+            .Build();
 
         await repository.CreateAsync(contact, CancellationToken.None);
         var result = await repository.FindByIdAsync(new CustomerId(41), CancellationToken.None);
@@ -94,8 +99,18 @@ public sealed class SqlServerCustomerContactRepositoryTests
     {
         var connectionFactory = new DatabaseConnectionFactory(_connectionString);
         var repository = new SqlServerCustomerContactRepository(connectionFactory);
-        var originalContact = CustomerContactBuilder.FromPrimitives(42, "Original Contact", "+44 123456789", "original.contact@example.com");
-        var conflictingContact = CustomerContactBuilder.FromPrimitives(42, "Conflicting Contact", "+44 123456789", "conflicting.contact@example.com");
+        var originalContact = CustomerContactBuilder.Create()
+            .WithCustomerId(42)
+            .WithContactName("Original Contact")
+            .WithPhoneNumber("+44 123456789")
+            .WithEmailAddress("original.contact@example.com")
+            .Build();
+        var conflictingContact = CustomerContactBuilder.Create()
+            .WithCustomerId(42)
+            .WithContactName("Conflicting Contact")
+            .WithPhoneNumber("+44 123456789")
+            .WithEmailAddress("conflicting.contact@example.com")
+            .Build();
 
         await repository.CreateAsync(originalContact, CancellationToken.None);
         var exception = await Should.ThrowAsync<CustomerContactAlreadyExistsException>(() => repository.CreateAsync(conflictingContact, CancellationToken.None));
@@ -108,8 +123,18 @@ public sealed class SqlServerCustomerContactRepositoryTests
     {
         var connectionFactory = new DatabaseConnectionFactory(_connectionString);
         var repository = new SqlServerCustomerContactRepository(connectionFactory);
-        var originalContact = CustomerContactBuilder.FromPrimitives(43, "Original Contact", "+44 123456789", "original.contact@example.com");
-        var updatedContact = CustomerContactBuilder.FromPrimitives(43, "Updated Contact", "+44 123456789", "updated.contact@example.com");
+        var originalContact = CustomerContactBuilder.Create()
+            .WithCustomerId(43)
+            .WithContactName("Original Contact")
+            .WithPhoneNumber("+44 123456789")
+            .WithEmailAddress("original.contact@example.com")
+            .Build();
+        var updatedContact = CustomerContactBuilder.Create()
+            .WithCustomerId(43)
+            .WithContactName("Updated Contact")
+            .WithPhoneNumber("+44 123456789")
+            .WithEmailAddress("updated.contact@example.com")
+            .Build();
 
         await repository.CreateAsync(originalContact, CancellationToken.None);
         await repository.UpdateAsync(updatedContact, CancellationToken.None);
@@ -125,7 +150,12 @@ public sealed class SqlServerCustomerContactRepositoryTests
     {
         var connectionFactory = new DatabaseConnectionFactory(_connectionString);
         var repository = new SqlServerCustomerContactRepository(connectionFactory);
-        var contact = CustomerContactBuilder.FromPrimitives(44, "Non Existing", "+44 123456789", "non.existing@example.com");
+        var contact = CustomerContactBuilder.Create()
+            .WithCustomerId(44)
+            .WithContactName("Non Existing")
+            .WithPhoneNumber("+44 123456789")
+            .WithEmailAddress("non.existing@example.com")
+            .Build();
 
         var exception = await Should.ThrowAsync<CustomerContactNotFoundException>(() => repository.UpdateAsync(contact, CancellationToken.None));
 

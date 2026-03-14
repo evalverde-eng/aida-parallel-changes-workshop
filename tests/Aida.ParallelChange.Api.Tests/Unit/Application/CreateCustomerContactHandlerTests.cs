@@ -11,7 +11,12 @@ public sealed class CreateCustomerContactHandlerTests
     public async Task HandleAsync_calls_port_to_create_contact()
     {
         var creator = Substitute.For<CustomerContactCreator>();
-        var contact = CustomerContactBuilder.FromPrimitives(7, "Grace Hopper", "+1 5550100", "grace.hopper@example.com");
+        var contact = CustomerContactBuilder.Create()
+            .WithCustomerId(7)
+            .WithContactName("Grace Hopper")
+            .WithPhoneNumber("+1 5550100")
+            .WithEmailAddress("grace.hopper@example.com")
+            .Build();
         var command = new CreateCustomerContactCommand(contact);
         var handler = new CreateCustomerContactHandler(creator);
 
@@ -24,7 +29,12 @@ public sealed class CreateCustomerContactHandlerTests
     public async Task HandleAsync_propagates_conflict_error()
     {
         var creator = Substitute.For<CustomerContactCreator>();
-        var contact = CustomerContactBuilder.FromPrimitives(7, "Grace Hopper", "+1 5550100", "grace.hopper@example.com");
+        var contact = CustomerContactBuilder.Create()
+            .WithCustomerId(7)
+            .WithContactName("Grace Hopper")
+            .WithPhoneNumber("+1 5550100")
+            .WithEmailAddress("grace.hopper@example.com")
+            .Build();
         var command = new CreateCustomerContactCommand(contact);
         var handler = new CreateCustomerContactHandler(creator);
 

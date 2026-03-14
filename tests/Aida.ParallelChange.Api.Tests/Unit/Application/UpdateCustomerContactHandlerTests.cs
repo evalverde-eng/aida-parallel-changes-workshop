@@ -11,7 +11,12 @@ public sealed class UpdateCustomerContactHandlerTests
     public async Task HandleAsync_calls_port_to_update_contact()
     {
         var updater = Substitute.For<CustomerContactUpdater>();
-        var contact = CustomerContactBuilder.FromPrimitives(7, "Grace Hopper", "+1 5550100", "grace.hopper@example.com");
+        var contact = CustomerContactBuilder.Create()
+            .WithCustomerId(7)
+            .WithContactName("Grace Hopper")
+            .WithPhoneNumber("+1 5550100")
+            .WithEmailAddress("grace.hopper@example.com")
+            .Build();
         var command = new UpdateCustomerContactCommand(contact);
         var handler = new UpdateCustomerContactHandler(updater);
 
@@ -24,7 +29,12 @@ public sealed class UpdateCustomerContactHandlerTests
     public async Task HandleAsync_propagates_not_found_error()
     {
         var updater = Substitute.For<CustomerContactUpdater>();
-        var contact = CustomerContactBuilder.FromPrimitives(7, "Grace Hopper", "+1 5550100", "grace.hopper@example.com");
+        var contact = CustomerContactBuilder.Create()
+            .WithCustomerId(7)
+            .WithContactName("Grace Hopper")
+            .WithPhoneNumber("+1 5550100")
+            .WithEmailAddress("grace.hopper@example.com")
+            .Build();
         var command = new UpdateCustomerContactCommand(contact);
         var handler = new UpdateCustomerContactHandler(updater);
 

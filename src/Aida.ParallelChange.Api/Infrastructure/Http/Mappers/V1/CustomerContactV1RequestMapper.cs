@@ -9,7 +9,12 @@ public static class CustomerContactV1RequestMapper
     {
         try
         {
-            return CustomerContactBuilder.FromPrimitives(customerId, contactName, phone, email);
+            return CustomerContactBuilder.Create()
+                .WithCustomerId(customerId)
+                .WithContactName(contactName)
+                .WithPhoneNumber(phone)
+                .WithEmailAddress(email)
+                .Build();
         }
         catch (Exception exception) when (exception is ArgumentException or ArgumentOutOfRangeException)
         {

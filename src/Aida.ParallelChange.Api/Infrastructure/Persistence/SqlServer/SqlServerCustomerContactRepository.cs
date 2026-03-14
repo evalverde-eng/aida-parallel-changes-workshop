@@ -28,7 +28,13 @@ public sealed class SqlServerCustomerContactRepository : CustomerContactReader, 
             return new FindCustomerContactResult.NotFound(customerId);
         }
 
-        return new FindCustomerContactResult.Found(CustomerContactBuilder.FromPrimitives(row.CustomerId, row.ContactName, row.Phone, row.Email));
+        return new FindCustomerContactResult.Found(
+            CustomerContactBuilder.Create()
+                .WithCustomerId(row.CustomerId)
+                .WithContactName(row.ContactName)
+                .WithPhoneNumber(row.Phone)
+                .WithEmailAddress(row.Email)
+                .Build());
     }
 
     public async Task CreateAsync(CustomerContact customerContact, CancellationToken cancellationToken = default)
