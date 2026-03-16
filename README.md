@@ -20,6 +20,60 @@ The workshop objective is to evolve a live system incrementally without careless
 - Keep tests, docs, scripts, and HTTP executable documentation aligned.
 - Work with outside-in double-loop TDD and one failing test at a time.
 
+## Architecture (C4)
+
+These diagrams represent the current implemented architecture and runtime boundaries.
+
+### C4 Level 1 - System Context
+
+```mermaid
+C4Context
+title C4 Level 1 - System Context
+Person(apiConsumer, "API Consumer", "Consumes customer contact endpoints")
+System(apiSystem, "AIDA Customer Contacts API", "Provides v1 contact operations and system endpoints")
+SystemDb(sqlServer, "SQL Server", "Stores customer_contacts and migration metadata")
+Rel(apiConsumer, apiSystem, "Uses", "HTTP + JSON:API")
+Rel(apiSystem, sqlServer, "Reads/Writes", "Dapper + SQL")
+```
+
+### C4 Level 2 - Container Diagram
+
+```mermaid
+C4Container
+title C4 Level 2 - Container Diagram
+Person(apiConsumer, "API Consumer", "Consumes customer contact endpoints")
+System_Boundary(aidaSystem, "AIDA Parallel Change System") {
+  Container(apiContainer, "Aida.ParallelChange.Api", "ASP.NET Core Web API", "Exposes GET/POST/PUT endpoints, health and OpenAPI")
+  Container(migratorContainer, "Aida.ParallelChange.Migrator", ".NET Console", "Runs FluentMigrator migrations")
+  ContainerDb(sqlContainer, "SQL Server", "Relational DB", "Persists customer contacts and migration versions")
+}
+Rel(apiConsumer, apiContainer, "Calls", "HTTP + JSON:API")
+Rel(apiContainer, sqlContainer, "Reads/Writes", "Dapper")
+Rel(migratorContainer, sqlContainer, "Migrates schema", "FluentMigrator")
+```
+
+### C4 Level 3 - Component Diagram (API Container)
+
+```mermaid
+C4Component
+title C4 Level 3 - API Component Diagram
+Container_Boundary(apiBoundary, "Aida.ParallelChange.Api") {
+  Component(controller, "CustomerContactsV1Controller", "ASP.NET Controller", "Handles v1 routes and delegates use cases")
+  Component(httpMappers, "HTTP Mappers", "Route parser + request/response mappers", "Maps transport models to domain models")
+  Component(useCases, "Application Handlers", "Get/Create/Update handlers", "Coordinates use cases through ports")
+  Component(domainModel, "Domain Model", "CustomerContact + Value Objects", "Encapsulates domain invariants")
+  Component(repository, "SqlServerCustomerContactRepository", "Infrastructure adapter", "Implements reader/creator/updater ports")
+  Component(errorPipeline, "JSON:API Exception Pipeline", "Exception handler + mapper factory", "Maps exceptions to JSON:API error documents")
+}
+ContainerDb(sqlContainer, "SQL Server", "Relational DB")
+Rel(controller, httpMappers, "Parses/maps HTTP contracts")
+Rel(controller, useCases, "Invokes")
+Rel(useCases, domainModel, "Creates/uses")
+Rel(useCases, repository, "Uses ports")
+Rel(repository, sqlContainer, "Reads/Writes", "SQL")
+Rel(controller, errorPipeline, "Delegates unhandled errors")
+```
+
 ## Documentation map
 
 - `AGENTS.md`
