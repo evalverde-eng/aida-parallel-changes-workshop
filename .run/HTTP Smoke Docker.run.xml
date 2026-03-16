@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="HTTP Smoke Docker" type="ShConfigurationType" factoryName="Sh Configuration">
-    <option name="SCRIPT_TEXT" value="for request in http/*.http; do docker compose --project-name ${AIDA_COMPOSE_PROJECT_NAME:-aida-parallel-change} run --rm ijhttp --env-file http/http-client.env.json --env docker $request || exit $?; done" />
+    <option name="SCRIPT_TEXT" value="for request in http/*.http; do docker compose -p aida-parallel-change run --rm ijhttp --env-file http/http-client.env.json --env docker $request || exit $?; done" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
     <option name="SCRIPT_PATH" value="" />
     <option name="SCRIPT_OPTIONS" value="" />
