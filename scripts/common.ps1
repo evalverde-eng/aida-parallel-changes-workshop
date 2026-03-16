@@ -55,6 +55,29 @@ function Invoke-Compose {
     & docker compose --project-name $env:AIDA_COMPOSE_PROJECT_NAME @Arguments
 }
 
+function Test-ComposeDownSupportsRemoveOrphans {
+    $helpOutput = docker compose down --help 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        return $false
+    }
+
+    return ($helpOutput -match '--remove-orphans')
+}
+
+function Invoke-ComposeDownCompatible {
+    param(
+        [Parameter(ValueFromRemainingArguments = $true)]
+        [string[]]$Arguments
+    )
+
+    if (Test-ComposeDownSupportsRemoveOrphans) {
+        Invoke-Compose down --remove-orphans @Arguments
+        return
+    }
+
+    Invoke-Compose down @Arguments
+}
+
 function Test-ContainerExistsByName {
     param(
         [Parameter(Mandatory = $true)]
@@ -123,7 +146,7 @@ function Remove-PortCollisions {
 }
 
 function Recover-ComposeStackCollisions {
-    Invoke-Compose down --remove-orphans *> $null
+    Invoke-ComposeDownCompatible *> $null
     Remove-LegacyContainers
     Remove-PortCollisions
 }

@@ -4,5 +4,5 @@ $ErrorActionPreference = 'Stop'
 Import-AidaEnv
 
 Invoke-InAidaRepoRoot {
-    Invoke-Compose down --remove-orphans
+    Invoke-ComposeDownCompatible
 }

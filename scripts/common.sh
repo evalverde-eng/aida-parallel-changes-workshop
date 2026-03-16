@@ -24,6 +24,21 @@ compose_cmd() {
   docker compose --project-name "$AIDA_COMPOSE_PROJECT_NAME" "$@"
 }
 
+compose_supports_remove_orphans() {
+  local down_help
+  down_help="$(docker compose down --help 2>/dev/null || true)"
+  [[ "$down_help" == *"--remove-orphans"* ]]
+}
+
+compose_down_compatible() {
+  if compose_supports_remove_orphans; then
+    compose_cmd down --remove-orphans "$@"
+    return
+  fi
+
+  compose_cmd down "$@"
+}
+
 ensure_repo_root() {
   cd "$AIDA_REPO_ROOT"
 }
@@ -94,7 +109,7 @@ remove_port_collisions() {
 }
 
 recover_compose_stack_collisions() {
-  compose_cmd down --remove-orphans >/dev/null 2>&1 || true
+  compose_down_compatible >/dev/null 2>&1 || true
   remove_legacy_containers
   remove_port_collisions
 }
