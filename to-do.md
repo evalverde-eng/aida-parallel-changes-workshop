@@ -56,15 +56,15 @@ Baseline accepted AC above remain immutable and must not regress.
 | S-AC-05 | repository read path supports transitional mixed rows | SI-READ-TRANSITION-001 | done |
 | S-AC-06 | deterministic backfill is idempotent and safe | SI-BACKFILL-001 | done |
 | S-AC-07 | gradual completion process is idempotent for remaining rows | SI-COMPLETION-001 | done |
-| S-AC-08 | `GET /api/v2/customer-contacts/{customerId}` returns structured contract and expected errors | AT-V2-GET-200-001, AT-V2-GET-400-001, AT-V2-GET-404-001 | pending |
-| S-AC-09 | `POST /api/v2/customer-contacts` creates structured contact and preserves compatibility behavior | AT-V2-POST-201-001, AT-V2-POST-400-001, AT-V2-POST-409-001 | pending |
-| S-AC-10 | `PUT /api/v2/customer-contacts/{customerId}` updates structured contact and preserves compatibility behavior | AT-V2-PUT-204-001, AT-V2-PUT-400-001, AT-V2-PUT-404-001 | pending |
+| S-AC-08 | `GET /api/v2/customer-contacts/{customerId}` returns structured contract and expected errors | AT-V2-GET-200-001, AT-V2-GET-400-001, AT-V2-GET-404-001 | done |
+| S-AC-09 | `POST /api/v2/customer-contacts` creates structured contact and preserves compatibility behavior | AT-V2-POST-201-001, AT-V2-POST-400-001, AT-V2-POST-409-001 | done |
+| S-AC-10 | `PUT /api/v2/customer-contacts/{customerId}` updates structured contact and preserves compatibility behavior | AT-V2-PUT-204-001, AT-V2-PUT-400-001, AT-V2-PUT-404-001 | done |
 | S-AC-11 | internal persistence contract removes legacy flat storage while preserving `v1` observable behavior | SI-CONTRACT-DB-001, AT-V1-NONREG-002 | pending |
 | S-AC-12 | solution documentation explains full strategy, ordering, and evidence with executable diagrams | DOC-SOLUTION-001 | pending |
 
 ## Solution branch next red test (only one)
 
-- [ ] AT-V2-GET-200-001
+- [ ] SI-CONTRACT-DB-001
 
 ## ZOMBIES decomposition
 

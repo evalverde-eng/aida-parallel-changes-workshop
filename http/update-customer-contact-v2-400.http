@@ -1,0 +1,18 @@
+### PUT customer contact v2 400
+PUT {{host}}/api/v2/customer-contacts/invalid
+Content-Type: application/vnd.api+json
+Accept: application/vnd.api+json
+
+{
+  "firstName": "Invalid",
+  "lastName": "Customer",
+  "phoneCountryCode": "+34",
+  "phoneLocalNumber": "600002801",
+  "email": "invalid.customer@example.com"
+}
+
+> {%
+client.test("PUT v2 returns 400", function() {
+  client.assert(response.status === 400, "Expected 400");
+});
+%}

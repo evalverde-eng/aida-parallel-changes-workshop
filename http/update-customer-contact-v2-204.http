@@ -1,0 +1,36 @@
+### Setup for PUT v2 204
+POST {{host}}/api/v1/customer-contacts
+Content-Type: application/vnd.api+json
+Accept: application/vnd.api+json
+
+{
+  "customerId": 2701,
+  "contactName": "Before V2 Update",
+  "phone": "+34 600002701",
+  "email": "before.v2.update@example.com"
+}
+
+> {%
+client.test("setup status is 201 or 409", function() {
+  client.assert(response.status === 201 || response.status === 409, "Expected 201 or 409");
+});
+%}
+
+### PUT customer contact v2 204
+PUT {{host}}/api/v2/customer-contacts/2701
+Content-Type: application/vnd.api+json
+Accept: application/vnd.api+json
+
+{
+  "firstName": "After",
+  "lastName": "Update",
+  "phoneCountryCode": "+34",
+  "phoneLocalNumber": "600002702",
+  "email": "after.v2.update@example.com"
+}
+
+> {%
+client.test("PUT v2 returns 204", function() {
+  client.assert(response.status === 204, "Expected 204");
+});
+%}

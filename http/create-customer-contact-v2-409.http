@@ -1,0 +1,37 @@
+### Setup for POST v2 409
+POST {{host}}/api/v1/customer-contacts
+Content-Type: application/vnd.api+json
+Accept: application/vnd.api+json
+
+{
+  "customerId": 2603,
+  "contactName": "Conflict Contact",
+  "phone": "+34 600002603",
+  "email": "conflict.v2@example.com"
+}
+
+> {%
+client.test("setup status is 201 or 409", function() {
+  client.assert(response.status === 201 || response.status === 409, "Expected 201 or 409");
+});
+%}
+
+### POST customer contact v2 409
+POST {{host}}/api/v2/customer-contacts
+Content-Type: application/vnd.api+json
+Accept: application/vnd.api+json
+
+{
+  "customerId": 2603,
+  "firstName": "Conflict",
+  "lastName": "Contact",
+  "phoneCountryCode": "+34",
+  "phoneLocalNumber": "600002603",
+  "email": "conflict.v2@example.com"
+}
+
+> {%
+client.test("POST v2 returns 409", function() {
+  client.assert(response.status === 409, "Expected 409");
+});
+%}

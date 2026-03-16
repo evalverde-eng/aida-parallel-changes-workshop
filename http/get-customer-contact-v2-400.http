@@ -1,0 +1,9 @@
+### GET customer contact v2 400
+GET {{host}}/api/v2/customer-contacts/invalid
+Accept: application/vnd.api+json
+
+> {%
+client.test("GET v2 returns 400", function() {
+  client.assert(response.status === 400, "Expected 400");
+});
+%}

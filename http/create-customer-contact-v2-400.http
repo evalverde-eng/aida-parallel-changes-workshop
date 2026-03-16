@@ -1,0 +1,19 @@
+### POST customer contact v2 400
+POST {{host}}/api/v2/customer-contacts
+Content-Type: application/vnd.api+json
+Accept: application/vnd.api+json
+
+{
+  "customerId": 2602,
+  "firstName": "",
+  "lastName": "",
+  "phoneCountryCode": "+34",
+  "phoneLocalNumber": "600002602",
+  "email": "invalid"
+}
+
+> {%
+client.test("POST v2 returns 400", function() {
+  client.assert(response.status === 400, "Expected 400");
+});
+%}
