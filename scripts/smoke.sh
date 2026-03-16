@@ -8,13 +8,12 @@ ensure_docker_available
 remove_legacy_containers
 remove_port_collisions
 
-requests=(
-  http/system/*.http
-  http/v1/customer-contacts/*.http
-)
+compose_cmd up -d --build ijhttp
+
+shopt -s nullglob
+requests=(http/*.http)
+shopt -u nullglob
 
 for request in "${requests[@]}"; do
-    if [[ -f "$request" ]]; then
-    compose_cmd run --rm ijhttp --env-file "$AIDA_HTTP_ENV_FILE" --env "$AIDA_HTTP_ENV" "$request"
-  fi
+  compose_cmd exec -T ijhttp /bin/sh /workspace/scripts/run-ijhttp.sh --env-file "$AIDA_HTTP_ENV_FILE" --env "$AIDA_HTTP_ENV" "$request"
 done

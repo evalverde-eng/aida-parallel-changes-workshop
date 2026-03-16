@@ -7,7 +7,15 @@ using Aida.ParallelChange.Api.Infrastructure.Persistence.SqlServer;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton(sp => new DatabaseConnectionFactory(builder.Configuration.GetConnectionString("SqlServer")!));
+builder.WebHost.UseUrls(builder.Configuration["Api:HttpUrl"] ?? ApiDefaults.HttpUrl);
+
+var connectionString = builder.Configuration.GetConnectionString("SqlServer");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException("Connection string 'SqlServer' is required.");
+}
+
+builder.Services.AddSingleton(new DatabaseConnectionFactory(connectionString));
 builder.Services.AddScoped<SqlServerCustomerContactRepository>();
 builder.Services.AddScoped<CustomerContactReader>(sp => sp.GetRequiredService<SqlServerCustomerContactRepository>());
 builder.Services.AddScoped<CustomerContactCreator>(sp => sp.GetRequiredService<SqlServerCustomerContactRepository>());
@@ -36,3 +44,8 @@ app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 app.Run();
 
 public partial class Program;
+
+public static class ApiDefaults
+{
+    public const string HttpUrl = "http://0.0.0.0:8080";
+}

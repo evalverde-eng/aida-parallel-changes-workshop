@@ -16,7 +16,7 @@ fi
 : "${AIDA_API_PORT:=8080}"
 : "${AIDA_SQL_READY_ATTEMPTS:=60}"
 : "${AIDA_SQL_READY_SLEEP_SECONDS:=2}"
-: "${AIDA_HTTP_ENV_FILE:=http/environments/local.http-client.env.json}"
+: "${AIDA_HTTP_ENV_FILE:=http/http-client.env.json}"
 : "${AIDA_HTTP_ENV:=docker}"
 : "${AIDA_COMPOSE_PROJECT_NAME:=aida-parallel-change}"
 

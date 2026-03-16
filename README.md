@@ -1,16 +1,24 @@
 [![quality-gates](https://github.com/evalverde-eng/aida-parallel-changes-workshop/actions/workflows/quality-gates.yml/badge.svg)](https://github.com/evalverde-eng/aida-parallel-changes-workshop/actions/workflows/quality-gates.yml)
 # AIDA Parallel Change Workshop
 
-This repository provides the workshop baseline for evolving an API safely with strict engineering discipline.
+This repository is a workshop baseline to practice safe contract and persistence evolution with strict engineering discipline.
 
-- Runtime: .NET 10, ASP.NET Core, SQL Server, Dapper, FluentMigrator.
+- Runtime stack: .NET 10, ASP.NET Core, SQL Server, Dapper, FluentMigrator.
 - Branch model: single long-lived branch `main`.
-- Current API baseline:
+- Public baseline API:
   - `GET /api/v1/customer-contacts/{customerId}`
   - `POST /api/v1/customer-contacts`
   - `PUT /api/v1/customer-contacts/{customerId}`
   - `GET /health`
   - `GET /openapi/v1.json`
+
+## Repository objective
+
+The workshop objective is to evolve a live system incrementally without careless breaking changes.
+
+- Keep legacy behavior stable while introducing new behavior.
+- Keep tests, docs, scripts, and HTTP executable documentation aligned.
+- Work with outside-in double-loop TDD and one failing test at a time.
 
 ## Documentation map
 
@@ -25,51 +33,34 @@ This repository provides the workshop baseline for evolving an API safely with s
 
 - .NET 10 SDK
 - Docker Engine or Docker Desktop with `docker compose`
-- PowerShell 7+ (optional, for `*.ps1` scripts)
-- JetBrains Rider 2024.3+ (optional, for shared `.run` configurations)
+- PowerShell 7+ for `*.ps1` scripts (optional)
+- JetBrains Rider 2024.3+ for shared `.run` configurations and `.http` execution (optional)
 
-## Quick start from zero
+## Fixed system port
 
-1. Clone the repository.
-2. Create local environment file from example.
-3. Start stack and apply migrations.
-4. Run executable HTTP documentation checks.
-5. Stop stack.
+API HTTP port is fixed to `8080`.
 
-```bash
-cp .env.example .env
-./scripts/up.sh
-./scripts/smoke.sh
-./scripts/down.sh
-```
+- Local URL: `http://localhost:8080`
+- System checks:
+  - `http://localhost:8080/health`
+  - `http://localhost:8080/openapi/v1.json`
 
-PowerShell equivalents are available (`*.ps1`).
+## HTTP executable documentation layout
 
-## Restore all projects
+All request files and environment definitions are in the same folder:
 
-Use scripts when you want one command from repository root:
+- `http/*.http`
+- `http/http-client.env.json`
 
-```bash
-./scripts/restore.sh
-```
+Available environments in `http/http-client.env.json`:
 
-```powershell
-./scripts/restore.ps1
-```
+- `local` for IDE/host execution (`http://localhost:8080`)
+- `docker` for Docker network execution (`http://api:8080`)
+- `localFromDocker` for Docker-based HTTP runner targeting host API (`http://host.docker.internal:8080`)
 
-Manual alternative (each command starts from repository root and returns to repository root):
+## Environment variables
 
-```bash
-cd src/Aida.ParallelChange.Api && dotnet restore && cd ../..
-cd src/Aida.ParallelChange.Migrator && dotnet restore && cd ../..
-cd tests/Aida.ParallelChange.Api.Tests && dotnet restore && cd ../..
-```
-
-## Environment configuration
-
-Scripts load `.env` when present and apply defaults when missing.
-
-Configure from `.env.example`:
+Scripts load `.env` when present. Start from `.env.example`.
 
 - `AIDA_SQL_DATABASE`
 - `AIDA_SQL_USER`
@@ -82,152 +73,215 @@ Configure from `.env.example`:
 - `AIDA_HTTP_ENV`
 - `AIDA_COMPOSE_PROJECT_NAME`
 
-`AIDA_COMPOSE_PROJECT_NAME` controls the Docker Compose group/project so all services run under the same stack name.
+`AIDA_COMPOSE_PROJECT_NAME` groups compose resources under one project name.
+`AIDA_API_PORT` controls host-to-container API port mapping in Docker and defaults to `8080`.
 
-## Runtime flow and architecture
+## Manual-first operation guide
 
-```mermaid
-flowchart LR
-  Client[Client] --> Controller[V1 Controller]
-  Controller --> GetHandler[Get Handler]
-  Controller --> CreateHandler[Create Handler]
-  Controller --> UpdateHandler[Update Handler]
-  GetHandler --> ReaderPort[Reader Port]
-  CreateHandler --> CreatorPort[Creator Port]
-  UpdateHandler --> UpdaterPort[Updater Port]
-  ReaderPort --> Repo[SQL Repository]
-  CreatorPort --> Repo
-  UpdaterPort --> Repo
-  Repo --> Sql[(SQL Server)]
+This section intentionally lists direct manual commands before script shortcuts.
+
+### 1) Restore dependencies manually
+
+```bash
+dotnet restore src/Aida.ParallelChange.Api/Aida.ParallelChange.Api.csproj
+dotnet restore src/Aida.ParallelChange.Migrator/Aida.ParallelChange.Migrator.csproj
+dotnet restore tests/Aida.ParallelChange.Api.Tests/Aida.ParallelChange.Api.Tests.csproj
 ```
 
-### Sequence diagram: GET
+### 2) Bring Docker stack up manually (full flow)
 
-```mermaid
-sequenceDiagram
-    participant C as Client
-    participant V as CustomerContactsV1Controller
-    participant H as GetCustomerContactHandler
-    participant R as CustomerContactReader
-    participant S as SqlServerCustomerContactRepository
-    participant D as SQL Server
-
-    C->>V: GET /api/v1/customer-contacts/{id}
-    V->>V: parse route id
-    V->>H: HandleAsync(query)
-    H->>R: FindByIdAsync(customerId)
-    R->>S: FindByIdAsync(customerId)
-    S->>D: SELECT by customer_id
-    D-->>S: row or no row
-    S-->>R: Found(contact) or NotFound(customerId)
-    R-->>H: result
-    H-->>V: result
-    V-->>C: 200 JSON:API or 404 JSON:API
+```bash
+docker compose --project-name ${AIDA_COMPOSE_PROJECT_NAME:-aida-parallel-change} build ijhttp
+docker compose --project-name ${AIDA_COMPOSE_PROJECT_NAME:-aida-parallel-change} build migrator
+docker compose --project-name ${AIDA_COMPOSE_PROJECT_NAME:-aida-parallel-change} up -d --build sqlserver
+docker compose --project-name ${AIDA_COMPOSE_PROJECT_NAME:-aida-parallel-change} run --rm migrator
+docker compose --project-name ${AIDA_COMPOSE_PROJECT_NAME:-aida-parallel-change} up -d --build api
 ```
 
-### Sequence diagram: POST
+Quick validation:
 
-```mermaid
-sequenceDiagram
-    participant C as Client
-    participant V as CustomerContactsV1Controller
-    participant H as CreateCustomerContactHandler
-    participant P as CustomerContactCreator
-    participant S as SqlServerCustomerContactRepository
-    participant D as SQL Server
-
-    C->>V: POST /api/v1/customer-contacts
-    V->>V: map and validate request
-    V->>H: HandleAsync(command)
-    H->>P: CreateAsync(contact)
-    P->>S: CreateAsync(contact)
-    S->>D: INSERT customer_contacts
-    D-->>S: success or duplicate key
-    S-->>P: completed or typed exception
-    P-->>H: completed or typed exception
-    H-->>V: completed or typed exception
-    V-->>C: 201 JSON:API, 400 JSON:API, or 409 JSON:API
+```bash
+curl http://localhost:8080/health
+curl http://localhost:8080/openapi/v1.json
 ```
 
-### Sequence diagram: PUT
+### 3) Execute all `.http` manually with Docker HTTP client runner
 
-```mermaid
-sequenceDiagram
-    participant C as Client
-    participant V as CustomerContactsV1Controller
-    participant H as UpdateCustomerContactHandler
-    participant P as CustomerContactUpdater
-    participant S as SqlServerCustomerContactRepository
-    participant D as SQL Server
+Docker environment:
 
-    C->>V: PUT /api/v1/customer-contacts/{id}
-    V->>V: parse route id and map request
-    V->>H: HandleAsync(command)
-    H->>P: UpdateAsync(contact)
-    P->>S: UpdateAsync(contact)
-    S->>D: UPDATE customer_contacts
-    D-->>S: affected rows
-    S-->>P: completed or not-found exception
-    P-->>H: completed or typed exception
-    H-->>V: completed or typed exception
-    V-->>C: 204, 400 JSON:API, or 404 JSON:API
+```bash
+docker compose --project-name ${AIDA_COMPOSE_PROJECT_NAME:-aida-parallel-change} up -d --build ijhttp
+for request in http/*.http; do
+  docker compose --project-name ${AIDA_COMPOSE_PROJECT_NAME:-aida-parallel-change} exec -T ijhttp /bin/sh /workspace/scripts/run-ijhttp.sh --env-file http/http-client.env.json --env docker "$request"
+done
 ```
 
-## Executable HTTP documentation
+Local host environment through Docker HTTP client runner:
 
-Contract outcomes in `http/v1/customer-contacts`:
+```bash
+docker compose --project-name ${AIDA_COMPOSE_PROJECT_NAME:-aida-parallel-change} up -d --build ijhttp
+for request in http/*.http; do
+  docker compose --project-name ${AIDA_COMPOSE_PROJECT_NAME:-aida-parallel-change} exec -T ijhttp /bin/sh /workspace/scripts/run-ijhttp.sh --env-file http/http-client.env.json --env localFromDocker "$request"
+done
+```
 
-- `get-customer-contact-200.http`
-- `get-customer-contact-400.http`
-- `get-customer-contact-404.http`
-- `create-customer-contact-201.http`
-- `create-customer-contact-400.http`
-- `create-customer-contact-409.http`
-- `update-customer-contact-204.http`
-- `update-customer-contact-400.http`
-- `update-customer-contact-404.http`
-- `scenario-create-get-update-get.http`
+### 4) Stop Docker stack manually
 
-System coverage in `http/system`:
+```bash
+docker compose --project-name ${AIDA_COMPOSE_PROJECT_NAME:-aida-parallel-change} down --remove-orphans
+```
 
-- `health-200.http`
-- `openapi-v1-200.http`
+### 5) Migrations only (manual)
 
-## Scripts
+```bash
+docker compose --project-name ${AIDA_COMPOSE_PROJECT_NAME:-aida-parallel-change} up -d sqlserver
+docker compose --project-name ${AIDA_COMPOSE_PROJECT_NAME:-aida-parallel-change} build migrator
+docker compose --project-name ${AIDA_COMPOSE_PROJECT_NAME:-aida-parallel-change} run --rm migrator
+```
 
-- `scripts/up.*`: build needed images, start stack, recreate DB, run migrations, boot API.
-- `scripts/down.*`: stop and remove compose resources.
-- `scripts/migrate.*`: start SQL and run migrations only.
-- `scripts/smoke.*`: execute all `.http` docs in `http/system` and `http/v1/customer-contacts`.
-- `scripts/restore.*`: restore all project files from repository root.
-- `scripts/test.*`: run fast suite (`TestCategory!=NarrowIntegration`).
-- `scripts/coverage.*`: enforce 100% line and branch coverage thresholds.
-- `scripts/mutation.*`: run Stryker mutation with 100% thresholds.
-- `scripts/check-shell-eol.*`: fail on CRLF in `*.sh`.
-- `scripts/verify.*`: full local quality gate sequence.
+### 6) Run API locally without Docker stack scripts
 
-## Rider integration
+Using SQL Server available locally:
+
+```bash
+export ConnectionStrings__SqlServer="Server=localhost,14333;Database=AidaParallelChange;User Id=sa;Password=Your_strong_password_123;TrustServerCertificate=true;Encrypt=false"
+dotnet run --project src/Aida.ParallelChange.Migrator
+dotnet run --project src/Aida.ParallelChange.Api
+```
+
+PowerShell equivalent:
+
+```powershell
+$env:ConnectionStrings__SqlServer="Server=localhost,14333;Database=AidaParallelChange;User Id=sa;Password=Your_strong_password_123;TrustServerCertificate=true;Encrypt=false"
+dotnet run --project src/Aida.ParallelChange.Migrator
+dotnet run --project src/Aida.ParallelChange.Api
+```
+
+### 7) Manual quality commands
+
+```bash
+dotnet restore Aida.ParallelChange.sln
+dotnet build Aida.ParallelChange.sln -c Release -warnaserror
+dotnet test Aida.ParallelChange.sln -c Release --filter "TestCategory!=NarrowIntegration"
+dotnet test Aida.ParallelChange.sln -c Release --filter "TestCategory=NarrowIntegration"
+dotnet test tests/Aida.ParallelChange.Api.Tests/Aida.ParallelChange.Api.Tests.csproj -c Release --filter "TestCategory!=NarrowIntegration" /p:CollectCoverage=true /p:CoverletOutputFormat=json
+```
+
+Mutation manually:
+
+```bash
+dotnet tool install dotnet-stryker --tool-path ./.tools --version 4.13.0
+.tools/dotnet-stryker --config-file stryker-config.json --output artifacts/stryker --log-to-file
+```
+
+## Script shortcuts
+
+All required script families exist in shell and PowerShell variants:
+
+- `scripts/up.*`
+- `scripts/down.*`
+- `scripts/migrate.*`
+- `scripts/smoke.*`
+- `scripts/restore.*`
+- `scripts/test.*`
+- `scripts/coverage.*`
+- `scripts/mutation.*`
+- `scripts/verify.*`
+- `scripts/check-shell-eol.*`
+
+Typical script flow:
+
+```bash
+cp .env.example .env
+./scripts/up.sh
+./scripts/smoke.sh
+./scripts/down.sh
+```
+
+PowerShell equivalents:
+
+```powershell
+Copy-Item .env.example .env
+./scripts/up.ps1
+./scripts/smoke.ps1
+./scripts/down.ps1
+```
+
+## Rider configuration and usage
 
 Shared run configurations are committed under `.run/`:
 
-- `Docker Up`
-- `Docker Down`
+- `Docker Up` (direct `docker compose ... up -d --build` command)
+- `Docker Down` (direct `docker compose ... down --remove-orphans` command)
+- `HTTP Smoke Docker` (direct compose `up` + `exec` loop against `docker` env)
+- `HTTP Smoke Local` (direct compose `up` + `exec` loop against `localFromDocker` env)
 - `Verify Local`
 
-Recommended Rider flow:
+For IDE-native `.http` execution:
 
-1. Open repository root.
-2. Enable Docker integration in Rider.
-3. Run `Docker Up`.
-4. Run `Verify Local` when needed.
-5. Run `Docker Down` to clean stack.
+1. Open any request in `http/*.http`.
+2. In Rider HTTP client, select environment `local` or `docker` from `http/http-client.env.json`.
+3. Run individual requests or run all requests in the file.
 
-## Quality gates
+## GitHub Actions and local validation with act
+
+Workflow file: `.github/workflows/quality-gates.yml`
+
+- Triggered on every `push` branch.
+- Triggered on `pull_request`.
+- Supports `workflow_dispatch` with `scope` input (`all`, `build`, `tests`, `mutation`).
+
+### Install act
+
+Linux/macOS via official installer script:
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+```
+
+macOS with Homebrew:
+
+```bash
+brew install act
+```
+
+Windows with WinGet:
+
+```powershell
+winget install --id nektos.act
+```
+
+Verify installation:
+
+```bash
+act --version
+```
+
+### Run workflow locally with act
+
+By job:
+
+```bash
+act pull_request -W .github/workflows/quality-gates.yml -j build
+act pull_request -W .github/workflows/quality-gates.yml -j tests
+act pull_request -W .github/workflows/quality-gates.yml -j mutation
+```
+
+By workflow dispatch scope:
+
+```bash
+act workflow_dispatch -W .github/workflows/quality-gates.yml --input scope=build
+act workflow_dispatch -W .github/workflows/quality-gates.yml --input scope=tests
+act workflow_dispatch -W .github/workflows/quality-gates.yml --input scope=mutation
+```
+
+## Full DoD command sequence
 
 ```bash
 dotnet restore Aida.ParallelChange.sln
 dotnet build Aida.ParallelChange.sln -c Release -warnaserror
 ./scripts/check-shell-eol.sh
+./scripts/test.sh
 ./scripts/test.sh
 dotnet test Aida.ParallelChange.sln -c Release --filter "TestCategory=NarrowIntegration"
 ./scripts/coverage.sh
@@ -238,23 +292,11 @@ dotnet test Aida.ParallelChange.sln -c Release --filter "TestCategory=NarrowInte
 ./scripts/verify.sh
 ```
 
-## Local GitHub Actions validation
+## Troubleshooting
 
-Run workflows locally with `act`:
-
-```bash
-act pull_request -W .github/workflows/quality-gates.yml -j build
-act pull_request -W .github/workflows/quality-gates.yml -j tests
-act pull_request -W .github/workflows/quality-gates.yml -j mutation
-```
-
-Pipeline execution is fractionable by job selection (`-j`) and by workflow scope input (`workflow_dispatch`).
-
-## Assertion libraries
-
-- `Shouldly` is available.
-- `AwesomeAssertions` is available.
-- `FluentAssertions` is intentionally not used as fallback.
+- `./scripts/up.ps1` warning `No resource found to remove for project ...` is treated as non-fatal when Docker returns exit code `0`.
+- If Docker HTTP runner needs host API access, use `localFromDocker` environment.
+- Runtime API configuration is SQL-only; provide a valid SQL Server connection string for local startup.
 
 ## Working rules summary
 

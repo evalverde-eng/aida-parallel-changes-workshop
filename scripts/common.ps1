@@ -1,5 +1,9 @@
 $ErrorActionPreference = 'Stop'
 
+if (Get-Variable -Name PSNativeCommandUseErrorActionPreference -ErrorAction SilentlyContinue) {
+    $PSNativeCommandUseErrorActionPreference = $false
+}
+
 $script:AidaRepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 
 function Invoke-InAidaRepoRoot {
@@ -37,7 +41,7 @@ function Import-AidaEnv {
     if (-not $env:AIDA_API_PORT) { $env:AIDA_API_PORT = '8080' }
     if (-not $env:AIDA_SQL_READY_ATTEMPTS) { $env:AIDA_SQL_READY_ATTEMPTS = '60' }
     if (-not $env:AIDA_SQL_READY_SLEEP_SECONDS) { $env:AIDA_SQL_READY_SLEEP_SECONDS = '2' }
-    if (-not $env:AIDA_HTTP_ENV_FILE) { $env:AIDA_HTTP_ENV_FILE = 'http/environments/local.http-client.env.json' }
+    if (-not $env:AIDA_HTTP_ENV_FILE) { $env:AIDA_HTTP_ENV_FILE = 'http/http-client.env.json' }
     if (-not $env:AIDA_HTTP_ENV) { $env:AIDA_HTTP_ENV = 'docker' }
     if (-not $env:AIDA_COMPOSE_PROJECT_NAME) { $env:AIDA_COMPOSE_PROJECT_NAME = 'aida-parallel-change' }
 }
