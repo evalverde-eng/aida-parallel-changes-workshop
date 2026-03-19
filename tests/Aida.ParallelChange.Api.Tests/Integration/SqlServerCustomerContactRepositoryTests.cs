@@ -94,6 +94,9 @@ public sealed class SqlServerCustomerContactRepositoryTests
         var versionOneCommand = connection.CreateCommand();
         versionOneCommand.CommandText = "SELECT COUNT(*) FROM dbo.VersionInfo WHERE Version = 202604010001;";
 
+        var versionTwoCommand = connection.CreateCommand();
+        versionTwoCommand.CommandText = "SELECT COUNT(*) FROM dbo.VersionInfo WHERE Version = 202604010002;";
+
         var customerIdColumnCommand = connection.CreateCommand();
         customerIdColumnCommand.CommandText = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'customer_contacts' AND COLUMN_NAME = 'customer_id';";
 
@@ -106,19 +109,41 @@ public sealed class SqlServerCustomerContactRepositoryTests
         var emailColumnCommand = connection.CreateCommand();
         emailColumnCommand.CommandText = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'customer_contacts' AND COLUMN_NAME = 'email';";
 
+        var firstNameColumnCommand = connection.CreateCommand();
+        firstNameColumnCommand.CommandText = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'customer_contacts' AND COLUMN_NAME = 'first_name';";
+
+        var lastNameColumnCommand = connection.CreateCommand();
+        lastNameColumnCommand.CommandText = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'customer_contacts' AND COLUMN_NAME = 'last_name';";
+
+        var phoneCountryCodeColumnCommand = connection.CreateCommand();
+        phoneCountryCodeColumnCommand.CommandText = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'customer_contacts' AND COLUMN_NAME = 'phone_country_code';";
+
+        var phoneLocalNumberColumnCommand = connection.CreateCommand();
+        phoneLocalNumberColumnCommand.CommandText = "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'dbo' AND TABLE_NAME = 'customer_contacts' AND COLUMN_NAME = 'phone_local_number';";
+
         var tableCount = (int)(await tableCommand.ExecuteScalarAsync())!;
         var versionOneCount = (int)(await versionOneCommand.ExecuteScalarAsync())!;
+        var versionTwoCount = (int)(await versionTwoCommand.ExecuteScalarAsync())!;
         var customerIdColumnCount = (int)(await customerIdColumnCommand.ExecuteScalarAsync())!;
         var contactNameColumnCount = (int)(await contactNameColumnCommand.ExecuteScalarAsync())!;
         var phoneColumnCount = (int)(await phoneColumnCommand.ExecuteScalarAsync())!;
         var emailColumnCount = (int)(await emailColumnCommand.ExecuteScalarAsync())!;
+        var firstNameColumnCount = (int)(await firstNameColumnCommand.ExecuteScalarAsync())!;
+        var lastNameColumnCount = (int)(await lastNameColumnCommand.ExecuteScalarAsync())!;
+        var phoneCountryCodeColumnCount = (int)(await phoneCountryCodeColumnCommand.ExecuteScalarAsync())!;
+        var phoneLocalNumberColumnCount = (int)(await phoneLocalNumberColumnCommand.ExecuteScalarAsync())!;
 
         tableCount.ShouldBe(1);
         versionOneCount.ShouldBe(1);
+        versionTwoCount.ShouldBe(1);
         customerIdColumnCount.ShouldBe(1);
         contactNameColumnCount.ShouldBe(1);
         phoneColumnCount.ShouldBe(1);
         emailColumnCount.ShouldBe(1);
+        firstNameColumnCount.ShouldBe(1);
+        lastNameColumnCount.ShouldBe(1);
+        phoneCountryCodeColumnCount.ShouldBe(1);
+        phoneLocalNumberColumnCount.ShouldBe(1);
     }
 
     [Test]
