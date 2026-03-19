@@ -113,9 +113,8 @@ Rebuilt solution chronology:
 | expand | `41a3be4` | implement dual-write and transitional read |
 | migrate | `f4bddfb` | add idempotent backfill and migration telemetry |
 | migrate | `83435ae` | publish `v2` contract in parallel |
-| contract | `3d665d2` | add contract-phase persistence and `v1` non-regression evidence |
-| contract | `ab3d4bf` | switch to structured-only persistence and remove legacy columns |
-| contract | `ff10f6e` | isolate explicit integration validation and local `act` support |
+| contract | `9c0686a` | switch to structured canonical persistence and preserve `v1` observable behavior |
+| contract | `097216f` | isolate explicit integration validation and local `act` support |
 
 The first solution-only commit `536edac` has parent `539b338`, which proves the rebuilt solution starts exactly from the published sanitized baseline.
 
@@ -223,30 +222,20 @@ This is the phase where the new external contract becomes visible, but the old c
 
 The contract phase now exists as explicit commits on top of the rebuilt solution branch instead of remaining as local-only state.
 
-### `3d665d2` - contract evidence first
-
-This commit adds the contract-phase proof before changing production code.
-
-It introduces:
-
-- `SI-CONTRACT-DB-001`
-- `AT-V1-NONREG-002`
-- `to-do.md` updates that close `S-AC-11`
-
-That keeps the contract work aligned with the repository's TDD rule: observable evidence first, implementation second.
-
-### Internal persistence contract
-
-### `ab3d4bf` - structured-only canonical persistence
+### `9c0686a` - structured-only canonical persistence with contract evidence
 
 The final persistence state removes the flat legacy columns entirely.
 
 Changes made:
 
 - added `202604010003_RemoveLegacyFlatCustomerContactColumns`
+- added `SI-CONTRACT-DB-001`
+- added `AT-V1-NONREG-002`
 - removed `contact_name` and `phone` from SQL create, update, and read queries
 - removed flat properties from `CustomerContactV1Row`
 - kept `v1` response behavior by composing `contactName` and `phone` from structured fields
+
+This commit is intentionally green even though the work was developed test-first locally. The final sanitized history keeps the evidence and the implementation together so every published solution commit remains executable.
 
 This means the system no longer stores the flat shape internally, but `v1` clients still observe the same behavior.
 
@@ -261,7 +250,7 @@ So the contract phase also removed:
 
 At that point, the branch has crossed the point where transition helpers are no longer part of the intended final state.
 
-### `ff10f6e` - explicit integration validation and local `act` support
+### `097216f` - explicit integration validation and local `act` support
 
 The final solution cannot rely on fast tests alone because database and migration regressions would be too easy to hide.
 
